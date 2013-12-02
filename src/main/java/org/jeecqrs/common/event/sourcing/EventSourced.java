@@ -50,14 +50,6 @@ public interface EventSourced<E> {
     long version();
 
     /**
-     * Gets the list of events that mutated this object based since version
-     * {@link #version}.
-     * 
-     * @return  the mutating events
-     */
-    List<E> mutatingEvents();
-
-    /**
      * Persists all changes and increases the {@link #version}.
      * 
      * @param eventBus  the bus that receives the events that shall be persisted
