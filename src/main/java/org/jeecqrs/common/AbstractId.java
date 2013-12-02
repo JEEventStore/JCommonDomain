@@ -78,7 +78,7 @@ public abstract class AbstractId<T> implements ValueObject<T>, Identity {
 
     @Override
     public final int hashCode() {
-	return id.hashCode();
+	return idString().hashCode();
     }
 
     @Override
