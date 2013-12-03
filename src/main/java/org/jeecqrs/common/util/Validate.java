@@ -30,5 +30,10 @@ public class Validate {
         if (o == null)
             throw new NullPointerException(msg);
     }
+
+    public static void isTrue(boolean vrfy, String msg) {
+        if (vrfy == false)
+            throw new IllegalArgumentException(msg);
+    }
     
 }
