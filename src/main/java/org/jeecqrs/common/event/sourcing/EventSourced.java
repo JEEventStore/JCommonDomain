@@ -35,6 +35,7 @@ public interface EventSourced<E> {
      * of events.
      * The object must be newly constructed, i.e., the current {@link #version}
      * must be 0 and {@link #mutatingEvents()} must be empty.
+     * The events must be applied in order of the list.
      * 
      * @param version  the new version of this object after all events have been applied
      * @param events   the events, not null
