@@ -32,6 +32,9 @@ public interface EventRouter<E extends Event> {
      * Registers all event handlers within the given object with the
      * event router. 
      * The handler lookup strategy depends on the implementation.
+     * Since this method is typically called from the constructor
+     * of the given object, implementing classes must assume
+     * that the objects have not properly initialized at invocation.
      * 
      * @param obj  the object to be registered
      */
