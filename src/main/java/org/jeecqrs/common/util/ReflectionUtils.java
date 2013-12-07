@@ -50,7 +50,7 @@ public class ReflectionUtils {
         if (!Arrays.deepEquals(params, m.getParameterTypes())) {
             String msg = String.format(
                     "Method annotated with @%s has wrong signature, required %s, but is %s",
-                    annotation.getCanonicalName(), params, m);
+                    annotation.getCanonicalName(), Arrays.asList(params), m);
             throw new IllegalArgumentException(msg);
         }
         m.setAccessible(true);
