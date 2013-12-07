@@ -55,21 +55,16 @@ public class ConventionEventRouter<E extends Event> implements EventRouter<E> {
     private final String methodName;
 
     public ConventionEventRouter() {
-        this(null);
+        this(true);
     }
 
-    public ConventionEventRouter(Object object) {
-        this(object, true);
+    public ConventionEventRouter(boolean throwOnHandlerNotFound) {
+        this(throwOnHandlerNotFound, DEFAULT_METHOD_NAME);
     }
 
-    public ConventionEventRouter(Object object, boolean throwOnHandlerNotFound) {
-        this(object, true, DEFAULT_METHOD_NAME);
-    }
-
-    public ConventionEventRouter(Object object, boolean throwOnHandlerNotFound, String methodName) {
+    public ConventionEventRouter(boolean throwOnHandlerNotFound, String methodName) {
         this.throwOnHandlerNotFound = throwOnHandlerNotFound;
         this.methodName = methodName;
-        register(object);
     }
 
     @Override
@@ -84,7 +79,7 @@ public class ConventionEventRouter<E extends Event> implements EventRouter<E> {
     }
 
     @Override
-    public final void register(Object obj) {
+    public void register(Object obj) {
         this.object = obj;
     }
 
