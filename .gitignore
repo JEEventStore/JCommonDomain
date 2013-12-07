@@ -5,3 +5,4 @@
 *.ear
 nbactions.xml
 /target/
+/common/target/
