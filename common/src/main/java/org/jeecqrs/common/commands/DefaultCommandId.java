@@ -21,7 +21,6 @@
 
 package org.jeecqrs.common.commands;
 
-import org.jeecqrs.common.event.*;
 import org.jeecqrs.common.AbstractId;
 
 /**
