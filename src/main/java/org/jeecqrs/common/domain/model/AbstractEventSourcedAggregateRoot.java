@@ -22,11 +22,8 @@
 package org.jeecqrs.common.domain.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.routing.ConventionEventRouter;
-import org.jeecqrs.common.event.routing.EventRouteEventHandler;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.Load;
