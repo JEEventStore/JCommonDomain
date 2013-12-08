@@ -21,15 +21,17 @@
 
 package org.jeecqrs.common.event.sourcing;
 
-import org.jeecqrs.common.event.Event;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Provides the ability to store a changes made during event sourcing.
- * 
- * @param <E>  the base event type
+ * Provides the ability to get the version of an object.
+ * Must return long.
  */
-public interface EventSourcingBus<E extends Event> {
-
-    void store(E event);
+@Target(ElementType.METHOD )
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Version {
     
 }

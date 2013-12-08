@@ -25,9 +25,15 @@ public class TestObject {
 
     @Store
     private void store(EventSourcingBus<Event> bus) {
-        bus.store(version, changes);
+        for (Event ev : changes)
+            bus.store(ev);
         changes.clear();
         version++;
+    }
+
+    @Version
+    private long version() {
+        return this.version;
     }
     
 }

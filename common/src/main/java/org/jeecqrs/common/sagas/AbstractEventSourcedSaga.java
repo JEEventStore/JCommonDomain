@@ -34,6 +34,7 @@ import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.Load;
 import org.jeecqrs.common.event.sourcing.Store;
+import org.jeecqrs.common.event.sourcing.Version;
 import org.jeecqrs.common.util.Validate;
 
 /**
@@ -117,11 +118,15 @@ public abstract class AbstractEventSourcedSaga {
      */
     @Store
     private void store(EventSourcingBus<DomainEvent> eventBus) {
-        if (this.changes.isEmpty())
-            return;
-        eventBus.store(version, new ArrayList<>(this.changes));
+        for (DomainEvent event : this.changes)
+            eventBus.store(event);
         this.changes.clear();
         this.version++;
+    }
+
+    @Version
+    private long version() {
+        return this.version;
     }
 
     protected boolean eventSourceReplayActive() {

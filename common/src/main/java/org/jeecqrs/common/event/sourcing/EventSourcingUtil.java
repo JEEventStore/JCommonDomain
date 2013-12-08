@@ -49,8 +49,26 @@ public class EventSourcingUtil {
 	    return instance;
 	} catch (InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
             String msg = String.format("Cannot create object of type %s: %s",
                     clazz, e.getMessage());
+	    throw new RuntimeException(msg, e);
+	}
+    }
+
+    public static <T> long retrieveVersion(T obj) {
+        Class<T> clazz = (Class<T>) obj.getClass();
+        Validate.notNull(obj, "obj must not be null");
+	try {
+            Method version = ReflectionUtils.findUniqueMethod(clazz, Version.class, new Object[]{});
+            Object res = version.invoke(obj, new Object[] { });
+            System.out.println("result: " + res.getClass());
+            if (!Long.class.equals(res.getClass()) && !long.class.equals(res.getClass()))
+                throw new IllegalStateException("@Version method does not return long: " + clazz);
+            return (long) res;
+	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            e.printStackTrace();
+            String msg = String.format("Cannot obtain version of class of type %s: %s", clazz, e);
 	    throw new RuntimeException(msg, e);
 	}
     }

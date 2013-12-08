@@ -21,7 +21,6 @@
 
 package org.jeecqrs.common.event.sourcing;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +41,15 @@ public class EventSourcingUtilTest {
         orig.add(new TestEvent());
         orig.add(new TestEvent());
 
-        TestObject obj = EventSourcingUtil.createFromEventStream(TestObject.class, 2, orig);
+        TestObject obj = EventSourcingUtil.createFromEventStream(TestObject.class, 27, orig);
         assertNotNull(obj);
-        assertEquals(obj.version, 2l);
+        assertEquals(obj.version, 27l);
         assertEquals(obj.stream, orig);
 
         obj.add(new TestEvent());
         obj.add(new TestEvent());
+
+        assertEquals(EventSourcingUtil.retrieveVersion(obj), 27l);
 
         Method m = ReflectionUtils.findUniqueMethod(TestObject.class,
                 Store.class, new Object[]{EventSourcingBus.class});
@@ -57,9 +58,8 @@ public class EventSourcingUtilTest {
         assertEquals(stored.size(), 0);
         EventSourcingBus mybus = new EventSourcingBus() {
             @Override
-            public void store(long originalVersion, List changes) {
-                stored.addAll(changes);
-                assertEquals(originalVersion, 2);
+            public void store(Event event) {
+                stored.add(event);
             }
         };
         m.invoke(obj, new Object[]{ mybus });
