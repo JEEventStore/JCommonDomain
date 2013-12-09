@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.commands.Command;
 import org.jeecqrs.common.event.routing.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
@@ -40,11 +42,13 @@ import org.jeecqrs.common.util.Validate;
 /**
  * Base implementation for sagas that use event sourcing as persistence technology.
  */
-public abstract class AbstractEventSourcedSaga {
+public abstract class AbstractEventSourcedSaga implements Identifiable {
 
     private static final String EVENT_HANDLER_NAME = "when";
 
     private final Logger log = Logger.getLogger(this.getClass().getName());
+
+    private Identity id;
 
     // the list of events that change the state of the aggregate relative to {@code version}
     private final List<DomainEvent> changes = new ArrayList<>();
@@ -55,19 +59,31 @@ public abstract class AbstractEventSourcedSaga {
     private Set<String> handledEvents = new HashSet<>();
     private boolean eventSourceReplayActive = false;
 
+
     public AbstractEventSourcedSaga() {
         this(new ConventionEventRouter<DomainEvent>(true, EVENT_HANDLER_NAME));
     }
 
-    @SuppressWarnings("LeakingThisInConstructor")
     public AbstractEventSourcedSaga(EventRouter<DomainEvent> eventRouter) {
+        this(new DefaultSagaId(), eventRouter);
+    }
+
+    @SuppressWarnings("LeakingThisInConstructor")
+    public AbstractEventSourcedSaga(Identity id, EventRouter<DomainEvent> eventRouter) {
+        Validate.notNull(id, "id must not be null");
         Validate.notNull(eventRouter, "eventRouter must not be null");
+        this.id = id;
         this.eventRouter = eventRouter;
         eventRouter.register(this);
     }
 
     protected abstract void sendCommand(Command command);
     protected abstract void requestTimeout(DomainEvent event, long timeout);
+    
+    @Override
+    public Identity id() {
+        return id;
+    }
 
     /**
      * Handle a domain event.
