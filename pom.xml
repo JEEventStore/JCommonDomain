@@ -12,6 +12,7 @@
 
     <modules>
         <module>common</module>
+        <module>persistence-jeeventstore</module>
     </modules>
 
     <properties>
@@ -29,11 +30,23 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-                <version>${version.testng}</version>
+            <version>${version.testng}</version>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>org.jeecqrs</groupId>
+                <artifactId>jcommondomain-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>
@@ -50,7 +63,6 @@
 
             </plugins>
         </pluginManagement>
-
     </build>
 
 </project>
