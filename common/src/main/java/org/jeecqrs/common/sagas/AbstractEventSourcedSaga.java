@@ -21,7 +21,6 @@
 
 package org.jeecqrs.common.sagas;
 
-import org.jeecqrs.common.domain.model.DomainEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +30,7 @@ import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.commands.Command;
+import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.routing.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
@@ -51,25 +51,25 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
     private Identity id;
 
     // the list of events that change the state of the aggregate relative to {@code version}
-    private final List<DomainEvent> changes = new ArrayList<>();
+    private final List<Event> changes = new ArrayList<>();
     // the persisted version this saga is based on, used for optimistic concurrency
     private long version = 0l;
-    private EventRouter<DomainEvent> eventRouter;
+    private EventRouter<Event> eventRouter;
 
     private Set<String> handledEvents = new HashSet<>();
     private boolean eventSourceReplayActive = false;
 
 
     public AbstractEventSourcedSaga() {
-        this(new ConventionEventRouter<DomainEvent>(true, EVENT_HANDLER_NAME));
+        this(new ConventionEventRouter<Event>(true, EVENT_HANDLER_NAME));
     }
 
-    public AbstractEventSourcedSaga(EventRouter<DomainEvent> eventRouter) {
+    public AbstractEventSourcedSaga(EventRouter<Event> eventRouter) {
         this(new DefaultSagaId(), eventRouter);
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public AbstractEventSourcedSaga(Identity id, EventRouter<DomainEvent> eventRouter) {
+    public AbstractEventSourcedSaga(Identity id, EventRouter<Event> eventRouter) {
         Validate.notNull(id, "id must not be null");
         Validate.notNull(eventRouter, "eventRouter must not be null");
         this.id = id;
@@ -78,7 +78,7 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
     }
 
     protected abstract void sendCommand(Command command);
-    protected abstract void requestTimeout(DomainEvent event, long timeout);
+    protected abstract void requestTimeout(Event event, long timeout);
     
     @Override
     public Identity id() {
@@ -96,7 +96,7 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
      * 
      * @param event  the event to handle
      */
-    public final void handle(DomainEvent<?> event) {
+    public final void handle(Event event) {
 	if (handledEvents.contains(event.id().idString())) {
             log.log(Level.FINE, "Event {0} of {1} handled already",
                     new Object[]{event.id().idString(), event.getClass().getSimpleName()});
@@ -108,19 +108,19 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
         this.invokeHandler(event);
     }
 
-    private void invokeHandler(DomainEvent<?> event) {
+    private void invokeHandler(Event<?> event) {
         eventRouter.dispatch(event);
         this.handledEvents.add(event.id().idString());
     }
 
     /**
-     * Loads a version of the saga from a list of DomainEvents. 
+     * Loads a version of the saga from a list of Event. 
      */
     @Load
-    private void load(long version, List<DomainEvent> events) {
+    private void load(long version, List<Event> events) {
         Validate.isTrue(version == 0l, "Cannot load on dirty saga");
         this.eventSourceReplayActive = true;
-        for (DomainEvent event : events)
+        for (Event event : events)
             this.invokeHandler(event);
         this.eventSourceReplayActive = false;
         this.version = version;
@@ -133,8 +133,8 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
      * @param eventBus  the recipient of the events
      */
     @Store
-    private void store(EventSourcingBus<DomainEvent> eventBus) {
-        for (DomainEvent event : this.changes)
+    private void store(EventSourcingBus<Event> eventBus) {
+        for (Event event : this.changes)
             eventBus.store(event);
         this.changes.clear();
         this.version++;
