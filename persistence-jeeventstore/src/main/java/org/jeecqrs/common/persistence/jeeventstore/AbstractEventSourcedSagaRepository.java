@@ -32,12 +32,12 @@ public abstract class AbstractEventSourcedSagaRepository<T extends Identifiable>
         extends AbstractEventSourcingRepository<T> {
 
     @Override
-    protected T ofIdentity(Identity id) {
+    protected T ofIdentity(Class<T> clazz, Identity id) {
         Validate.notNull(id, "id must not be null");
-        String streamId = streamIdFor(id);
+        String streamId = streamIdFor(clazz, id);
         if (!eventStore().existsStream(bucketId(), streamId))
             return null;
-        return super.ofIdentity(id);
+        return super.ofIdentity(clazz, id);
     }
 
 }

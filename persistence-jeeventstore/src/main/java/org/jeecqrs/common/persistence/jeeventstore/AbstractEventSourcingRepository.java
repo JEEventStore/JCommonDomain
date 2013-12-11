@@ -26,11 +26,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.Identity;
-import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
 import org.jeecqrs.common.domain.model.DomainEvent;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
@@ -51,26 +48,26 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
-    protected T ofIdentity(Identity id) {
+    protected T ofIdentity(Class<T> clazz, Identity id) {
         Validate.notNull(id, "id must not be null");
 	long start = System.currentTimeMillis();
-        String streamId = streamIdFor(id);
+        String streamId = streamIdFor(clazz, id);
         ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
-        T obj = (T) EventSourcingUtil.createFromEventStream(entityClass(),
+        T obj = (T) EventSourcingUtil.createFromEventStream(clazz,
                 stream.version(), (List) stream.events());
 	long end = System.currentTimeMillis();
 	log.log(Level.FINE, "Loaded in {0} ms entity {1}#{2}",
-                new Object[]{end-start, entityClass().getSimpleName(), id});
+                new Object[]{end-start, clazz.getSimpleName(), id});
 	return obj;
     }
 
-    protected String streamIdFor(Identity id) {
-        return streamNameGenerator().streamNameFor(entityClass(), id);
+    protected String streamIdFor(Class<?> clazz, Identity id) {
+        return streamNameGenerator().streamNameFor(clazz, id);
     }
 
     protected void add(T obj, String commitId) {
         Validate.notNull(obj, "object must not be null");
-        String streamId = streamIdFor(obj.id());
+        String streamId = streamIdFor(obj.getClass(), obj.id());
         WritableEventStream stream = eventStore().createStream(bucketId(), streamId);
         copyChanges(obj, stream);
         commit(stream, commitId);
@@ -79,7 +76,7 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
     public void save(T obj, String commitId) {
         Validate.notNull(obj, "object must not be null");
         long version = retrieveVersion(obj);
-        String streamId = streamIdFor(obj.id());
+        String streamId = streamIdFor(obj.getClass(), obj.id());
         WritableEventStream stream = eventStore().openStreamForWriting(bucketId(), streamId, version);
         commit(stream, commitId);
     }
@@ -104,12 +101,12 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
 
     private void invokeStore(T obj, EventSourcingBus<DomainEvent> bus) {
 	try {
-            Method store = ReflectionUtils.findUniqueMethod(entityClass(), Store.class,
-                    new Object[]{EventSourcingBus.class});
+            Method store = ReflectionUtils.findUniqueMethod(obj.getClass(),
+                    Store.class, new Object[]{EventSourcingBus.class});
             store.invoke(obj, new Object[] { bus });
 	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             String msg = String.format("Cannot find store method for type %s: %s",
-                    entityClass(), e.getMessage());
+                    obj.getClass(), e.getMessage());
 	    throw new RuntimeException(msg, e);
 	}
     }
@@ -126,7 +123,6 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
         return new CanonicalNameEventStreamNameGenerator();
     }
 
-    protected abstract Class<T> entityClass();
     protected abstract EventStore eventStore();
 
 }
