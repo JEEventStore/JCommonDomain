@@ -65,7 +65,7 @@ public abstract class AbstractEventSourcedSaga implements Identifiable {
     }
 
     public AbstractEventSourcedSaga(EventRouter<Event> eventRouter) {
-        this(new DefaultSagaId(), eventRouter);
+        this(new SagaId(), eventRouter);
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
