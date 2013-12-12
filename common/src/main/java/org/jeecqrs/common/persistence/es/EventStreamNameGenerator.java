@@ -19,11 +19,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.jeecqrs.common.persistence.jeeventstore;
+package org.jeecqrs.common.persistence.es;
 
 import org.jeecqrs.common.Identity;
-import org.jeecqrs.common.domain.model.AggregateRoot;
-import org.jeecqrs.common.event.Event;
 
 /**
  * Provides a strategy to obtain a name for an event stream.

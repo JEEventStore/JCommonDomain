@@ -19,26 +19,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.jeecqrs.common.persistence.jeeventstore;
+package org.jeecqrs.common.persistence.es;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.Identity;
-import org.jeecqrs.common.domain.model.DomainEvent;
+import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
 import org.jeecqrs.common.event.sourcing.Store;
 import org.jeecqrs.common.util.ReflectionUtils;
 import org.jeecqrs.common.util.Validate;
-import org.jeeventstore.ConcurrencyException;
-import org.jeeventstore.DuplicateCommitException;
-import org.jeeventstore.EventStore;
-import org.jeeventstore.ReadableEventStream;
-import org.jeeventstore.WritableEventStream;
 
 /**
  *
@@ -48,13 +42,15 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
+    protected abstract T loadFromStream(Class<T> clazz, String streamId);
+    protected abstract EventSourcingBus<Event> busForAdd(String streamId);
+    protected abstract EventSourcingBus<Event> busForSave(String streamId, long version);
+
     protected T ofIdentity(Class<T> clazz, Identity id) {
         Validate.notNull(id, "id must not be null");
 	long start = System.currentTimeMillis();
         String streamId = streamIdFor(clazz, id);
-        ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
-        T obj = (T) EventSourcingUtil.createFromEventStream(clazz,
-                stream.version(), (List) stream.events());
+        T obj = loadFromStream(clazz, streamId);
 	long end = System.currentTimeMillis();
 	log.log(Level.FINE, "Loaded in {0} ms entity {1}#{2}",
                 new Object[]{end-start, clazz.getSimpleName(), id});
@@ -68,38 +64,21 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
     protected void add(T obj, String commitId) {
         Validate.notNull(obj, "object must not be null");
         String streamId = streamIdFor(obj.getClass(), obj.id());
-        WritableEventStream stream = eventStore().createStream(bucketId(), streamId);
-        copyChanges(obj, stream);
-        commit(stream, commitId);
+        EventSourcingBus<Event> bus = busForAdd(streamId);
+        invokeStore(obj, bus);
+        bus.commit(commitId);
     }
 
     public void save(T obj, String commitId) {
         Validate.notNull(obj, "object must not be null");
-        long version = retrieveVersion(obj);
         String streamId = streamIdFor(obj.getClass(), obj.id());
-        WritableEventStream stream = eventStore().openStreamForWriting(bucketId(), streamId, version);
-        commit(stream, commitId);
-    }
-
-    private void copyChanges(T obj, final WritableEventStream stream) {
-        EventSourcingBus<DomainEvent> bus = new EventSourcingBus<DomainEvent>() {
-            @Override
-            public void store(DomainEvent event) {
-                stream.append(event);
-            }
-        };
+        long version = retrieveVersion(obj);
+        EventSourcingBus<Event> bus = busForSave(streamId, version);
         invokeStore(obj, bus);
+        bus.commit(commitId);
     }
 
-    private void commit(WritableEventStream stream, String commitId) {
-        try {
-            stream.commit(commitId);
-        } catch (DuplicateCommitException | ConcurrencyException e) {
-            throw new RuntimeException("committing changes failed: " + e.getMessage(), e);
-        }
-    }
-
-    private void invokeStore(T obj, EventSourcingBus<DomainEvent> bus) {
+    private void invokeStore(T obj, EventSourcingBus<Event> bus) {
 	try {
             Method store = ReflectionUtils.findUniqueMethod(obj.getClass(),
                     Store.class, new Object[]{EventSourcingBus.class});
@@ -122,7 +101,5 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
     protected EventStreamNameGenerator streamNameGenerator() {
         return new CanonicalNameEventStreamNameGenerator();
     }
-
-    protected abstract EventStore eventStore();
 
 }

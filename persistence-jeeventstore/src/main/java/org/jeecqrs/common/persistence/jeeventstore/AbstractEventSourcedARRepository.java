@@ -22,13 +22,12 @@
 package org.jeecqrs.common.persistence.jeeventstore;
 
 import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
-import org.jeeventstore.EventStore;
 
 /**
  *
  * @param <T>  the aggregate type
  */
 public abstract class AbstractEventSourcedARRepository<T extends AbstractEventSourcedAggregateRoot> 
-    extends AbstractEventSourcingRepository<T> {
+    extends AbstractJEEventStoreRepository<T> {
 
 }

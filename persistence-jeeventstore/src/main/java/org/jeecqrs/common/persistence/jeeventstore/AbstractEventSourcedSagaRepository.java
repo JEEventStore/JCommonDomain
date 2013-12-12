@@ -29,7 +29,7 @@ import org.jeecqrs.common.util.Validate;
  * @param <T>  the base saga type
  */
 public abstract class AbstractEventSourcedSagaRepository<T extends Identifiable>
-        extends AbstractEventSourcingRepository<T> {
+        extends AbstractJEEventStoreRepository<T> {
 
     @Override
     protected T ofIdentity(Class<T> clazz, Identity id) {

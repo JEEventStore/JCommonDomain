@@ -19,7 +19,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.jeecqrs.common.persistence.jeeventstore;
+package org.jeecqrs.common.persistence.es;
 
 import org.jeecqrs.common.Identity;
 
