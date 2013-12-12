@@ -31,5 +31,6 @@ import org.jeecqrs.common.event.Event;
 public interface EventSourcingBus<E extends Event> {
 
     void store(E event);
+    void commit(String commitId);
     
 }

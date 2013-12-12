@@ -61,6 +61,10 @@ public class EventSourcingUtilTest {
             public void store(Event event) {
                 stored.add(event);
             }
+            @Override
+            public void commit(String commitId) {
+                // noop
+            }
         };
         m.invoke(obj, new Object[]{ mybus });
         assertEquals(stored.size(), 2);
