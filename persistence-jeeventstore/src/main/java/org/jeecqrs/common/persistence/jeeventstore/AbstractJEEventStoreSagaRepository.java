@@ -21,13 +21,23 @@
 
 package org.jeecqrs.common.persistence.jeeventstore;
 
-import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
+import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.Identity;
+import org.jeecqrs.common.util.Validate;
 
 /**
- *
- * @param <T>  the aggregate type
+ * @param <T>  the base saga type
  */
-public abstract class AbstractEventSourcedARRepository<T extends AbstractEventSourcedAggregateRoot> 
-    extends AbstractJEEventStoreRepository<T> {
+public abstract class AbstractJEEventStoreSagaRepository<T extends Identifiable>
+        extends AbstractJEEventStoreRepository<T> {
+
+    @Override
+    protected T ofIdentity(Class<T> clazz, Identity id) {
+        Validate.notNull(id, "id must not be null");
+        String streamId = streamIdFor(clazz, id);
+        if (!eventStore().existsStream(bucketId(), streamId))
+            return null;
+        return super.ofIdentity(clazz, id);
+    }
 
 }
