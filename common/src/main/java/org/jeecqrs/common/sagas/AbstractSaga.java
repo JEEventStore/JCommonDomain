@@ -27,7 +27,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.Identity;
+import org.jeecqrs.common.commands.Command;
+import org.jeecqrs.common.commands.CommandBus;
 import org.jeecqrs.common.event.Event;
+import org.jeecqrs.common.event.EventBus;
+import org.jeecqrs.common.event.EventBusEnvelope;
 import org.jeecqrs.common.event.routing.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.util.Validate;
@@ -45,6 +49,9 @@ public abstract class AbstractSaga implements Identifiable {
     private Identity id;
     private EventRouter<Event> eventRouter;
     private final Set<String> handledEvents = new HashSet<>();
+
+    private CommandBus commandBus;
+    private EventBus eventBus;
 
     protected AbstractSaga(String sagaId) {
         this(sagaId, new ConventionEventRouter<>(true, EVENT_HANDLER_NAME));
@@ -112,6 +119,45 @@ public abstract class AbstractSaga implements Identifiable {
     protected void invokeHandler(Event<?> event) {
         eventRouter.dispatch(event);
         markedAsHandled(event);
+    }
+
+    protected void executeCommand(Command command) {
+        if (commandBus == null)
+            throw new IllegalStateException("No commandBus has been injected");
+        commandBus.send(command);
+    }
+
+    protected void raiseEvent(final Event event, final long delay) {
+        if (eventBus == null)
+            throw new IllegalStateException("No eventBus has been injected");
+        eventBus.dispatch(new EventBusEnvelope() {
+            @Override
+            public Event event() {
+                return event;
+            }
+            @Override
+            public long delay() {
+                return delay;
+            }
+        });
+    }
+
+    /**
+     * Sets the commandBus to use for sending commands.
+     * 
+     * @param commandBus 
+     */
+    public void setCommandBus(CommandBus commandBus) {
+        this.commandBus = commandBus;
+    }
+
+    /**
+     * Sets the eventBus to use for dispatching events.
+     * 
+     * @param eventBus 
+     */
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
 }
