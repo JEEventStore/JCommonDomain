@@ -26,13 +26,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
-import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.commands.Command;
 import org.jeecqrs.common.commands.CommandBus;
 import org.jeecqrs.common.event.Event;
-import org.jeecqrs.common.event.EventBus;
-import org.jeecqrs.common.event.EventBusEnvelope;
-import org.jeecqrs.common.event.routing.ConventionEventRouter;
+import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.util.Validate;
 
@@ -46,33 +43,29 @@ public abstract class AbstractSaga implements Identifiable {
 
     private final Logger log = Logger.getLogger(this.getClass().getName());
 
-    private Identity id;
-    private EventRouter<Event> eventRouter;
+    private final SagaId sagaId;
+    private final EventRouter<Void, Event> eventRouter;
     private final Set<String> handledEvents = new HashSet<>();
 
     private CommandBus commandBus;
-    private EventBus eventBus;
+    private SagaTimeoutProvider timeoutProvider;
 
-    protected AbstractSaga(String sagaId) {
-        this(sagaId, new ConventionEventRouter<>(true, EVENT_HANDLER_NAME));
-    }
-
-    protected AbstractSaga(String sagaId, EventRouter<Event> eventRouter) {
-        this(new SagaId(sagaId), eventRouter);
+    protected AbstractSaga(SagaId sagaId) {
+        this(sagaId, new ConventionEventRouter<Void, Event>(true, EVENT_HANDLER_NAME));
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    protected AbstractSaga(Identity id, EventRouter<Event> eventRouter) {
-        Validate.notNull(id, "id must not be null");
+    protected AbstractSaga(SagaId sagaId, EventRouter<Void, Event> eventRouter) {
+        Validate.notNull(sagaId, "sagaId must not be null");
         Validate.notNull(eventRouter, "eventRouter must not be null");
-        this.id = id;
+        this.sagaId = sagaId;
         this.eventRouter = eventRouter;
         eventRouter.register(this);
     }
 
     @Override
-    public Identity id() {
-        return id;
+    public SagaId id() {
+        return sagaId;
     }
 
     /**
@@ -117,7 +110,7 @@ public abstract class AbstractSaga implements Identifiable {
      * @param event  the event to handle
      */
     protected void invokeHandler(Event<?> event) {
-        eventRouter.dispatch(event);
+        eventRouter.routeEvent(event);
         markedAsHandled(event);
     }
 
@@ -128,18 +121,9 @@ public abstract class AbstractSaga implements Identifiable {
     }
 
     protected void raiseEvent(final Event event, final long delay) {
-        if (eventBus == null)
-            throw new IllegalStateException("No eventBus has been injected");
-        eventBus.dispatch(new EventBusEnvelope() {
-            @Override
-            public Event event() {
-                return event;
-            }
-            @Override
-            public long delay() {
-                return delay;
-            }
-        });
+        if (timeoutProvider == null)
+            throw new IllegalStateException("No timeout provider has been injected");
+        timeoutProvider.requestTimeout(this.id(), event, delay);
     }
 
     /**
@@ -152,12 +136,12 @@ public abstract class AbstractSaga implements Identifiable {
     }
 
     /**
-     * Sets the eventBus to use for dispatching events.
-     * 
-     * @param eventBus 
+     * Sets the SagaTimeoutProvider to use.
+     *
+     * @param timeoutProvider  the timeout provider
      */
-    public void setEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public void setTimeoutProvider(SagaTimeoutProvider timeoutProvider) {
+        this.timeoutProvider = timeoutProvider;
     }
 
 }
