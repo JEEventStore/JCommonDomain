@@ -6,10 +6,10 @@ package org.jeecqrs.common.event;
 public interface EventBus {
 
     /**
-     * Dispatches an event wrapped in an envelope on the event bus.
+     * Dispatches an event on the event bus.
      * 
-     * @param envelope     the envelope
+     * @param event the event
      */
-    void dispatch(EventBusEnvelope envelope);
+    void dispatch(Event event);
     
 }
