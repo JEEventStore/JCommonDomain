@@ -62,7 +62,6 @@ public class EventSourcingUtil {
 	try {
             Method version = ReflectionUtils.findUniqueMethod(clazz, Version.class, new Object[]{});
             Object res = version.invoke(obj, new Object[] { });
-            System.out.println("result: " + res.getClass());
             if (!Long.class.equals(res.getClass()) && !long.class.equals(res.getClass()))
                 throw new IllegalStateException("@Version method does not return long: " + clazz);
             return (long) res;
