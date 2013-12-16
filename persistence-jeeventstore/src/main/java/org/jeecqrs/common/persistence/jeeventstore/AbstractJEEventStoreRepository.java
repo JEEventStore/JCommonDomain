@@ -41,6 +41,8 @@ import org.jeeventstore.WritableEventStream;
 public abstract class AbstractJEEventStoreRepository<T extends Identifiable> 
     extends AbstractEventSourcingRepository<T> {
 
+    protected abstract String bucketId();
+
     @Override
     protected T loadFromStream(Class<T> clazz, String streamId) {
         ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
