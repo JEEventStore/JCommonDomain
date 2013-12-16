@@ -94,10 +94,6 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable> {
         return EventSourcingUtil.retrieveVersion(obj);
     }
 
-    protected String bucketId() {
-        return "DEFAULT";
-    }
-
     protected EventStreamNameGenerator streamNameGenerator() {
         return new CanonicalNameEventStreamNameGenerator();
     }
