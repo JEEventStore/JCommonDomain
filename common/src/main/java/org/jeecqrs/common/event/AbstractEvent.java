@@ -35,12 +35,11 @@ public abstract class AbstractEvent<T> extends AbstractIdentifiable<T>
     private Date occurredOn;
 
     public AbstractEvent() {
-        this.occurredOn = new Date();
-	this.id = new DefaultEventId();
+        this(new DefaultEventId());
     }
 
     public AbstractEvent(Identity eventId) {
-        this.id = eventId;
+        this(eventId, new Date());
     }
 
     public AbstractEvent(Identity eventId, Date occurredOn) {
