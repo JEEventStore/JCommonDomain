@@ -19,63 +19,68 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package org.jeecqrs.common.event.routing;
+package org.jeecqrs.common.event.routing.convention;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.jeecqrs.common.event.Event;
+import org.jeecqrs.common.event.routing.EndpointNotFoundException;
+import org.jeecqrs.common.event.routing.EventRouteEndpoint;
+import org.jeecqrs.common.event.routing.EventRouter;
+import org.jeecqrs.common.event.routing.InvokeMethodEndpoint;
 import org.jeecqrs.common.util.Validate;
 
 /**
-  * This router uses reflection to find event handlers for events based
-  * on a convention regarding the event handler method name and arguments.
-  * The default name for the method to be called as event handler is
-  * {@link when}, but the name can be overwritten in the constructor.
+  * This router uses reflection to find event routing endpoints for events based
+  * on a convention regarding the endpoint method name and arguments.
+  * The default name for the method to be called as endpoint is
+  * "{@code when}", but the name can be overwritten in the constructor.
   * For performance reasons, the reflection method lookup is cached
   * in a static cache field, such that later calls do not need to use parse
   * the object again.
   * 
+  * @param <R> the return type
   * @param <E> the base event type
  */
-public class ConventionEventRouter<E extends Event> implements EventRouter<E> {
+public class ConventionEventRouter<R, E extends Event> implements EventRouter<R, E> {
 
     private final static Logger log = Logger.getLogger(ConventionEventRouter.class.getCanonicalName());
 
     private final static String DEFAULT_METHOD_NAME = "when";
 
-    private final Map<Class<? extends E>, EventRouteEventHandler<E>> handlers = new HashMap<>();
+    private final Map<Class<? extends E>, EventRouteEndpoint<R, E>> endpoints = new HashMap<>();
     private static final Map<String, Method> methodCache = new HashMap<>();
 
     private Object object;
-    private final boolean throwOnHandlerNotFound;
+    private final boolean throwOnEndpointNotFound;
     private final String methodName;
 
     public ConventionEventRouter() {
         this(true);
     }
 
-    public ConventionEventRouter(boolean throwOnHandlerNotFound) {
-        this(throwOnHandlerNotFound, DEFAULT_METHOD_NAME);
+    public ConventionEventRouter(boolean throwOnEndpointNotFound) {
+        this(throwOnEndpointNotFound, DEFAULT_METHOD_NAME);
     }
 
-    public ConventionEventRouter(boolean throwOnHandlerNotFound, String methodName) {
-        this.throwOnHandlerNotFound = throwOnHandlerNotFound;
+    public ConventionEventRouter(boolean throwOnEndpointNotFound, String methodName) {
+        this.throwOnEndpointNotFound = throwOnEndpointNotFound;
         this.methodName = methodName;
     }
 
     @Override
-    public void dispatch(E event) {
+    public R routeEvent(E event) {
         Validate.notNull(event, "event must not be null");
         Class<E> type = (Class<E>) event.getClass();
-        EventRouteEventHandler<E> h = findHandlerFor(type);
+        EventRouteEndpoint<R, E> h = findEndpoints(type);
         if (h != null) {
-            h.handle(event);
-        } else if (throwOnHandlerNotFound)
-            throw new HandlerNotFoundException(type);
+            return h.consumeEvent(event);
+        } else if (throwOnEndpointNotFound)
+            throw new EndpointNotFoundException(type);
+        return null;
     }
 
     @Override
@@ -84,18 +89,18 @@ public class ConventionEventRouter<E extends Event> implements EventRouter<E> {
     }
 
     @Override
-    public void register(Class<? extends E> eventType, EventRouteEventHandler<E> handler) {
+    public void register(Class<? extends E> eventType, EventRouteEndpoint<R, E> endpoint) {
         Validate.notNull(eventType, "eventType must not be null");
-        Validate.notNull(handler, "route endpoint must not be null");
-        EventRouteEventHandler<E> h = lookup(eventType);
+        Validate.notNull(endpoint, "route endpoint must not be null");
+        EventRouteEndpoint<R, E> h = lookup(eventType);
         if (h != null)
-            throw new IllegalStateException("Handler already registered for type " + eventType.getCanonicalName());
-        log.fine("Registering event handler for event " + eventType + ": " + handler);
-        handlers.put(eventType, handler);
+            throw new IllegalStateException("endpoint already registered for type " + eventType.getCanonicalName());
+        log.fine("Registering endpoint for event " + eventType + ": " + endpoint);
+        endpoints.put(eventType, endpoint);
     }
 
-    private EventRouteEventHandler<E> findHandlerFor(Class<? extends E> eventType) {
-        EventRouteEventHandler<E> h = lookup(eventType);
+    private EventRouteEndpoint<R, E> findEndpoints(Class<? extends E> eventType) {
+        EventRouteEndpoint<R, E> h = lookup(eventType);
         if (h != null)
             return h;
         if (object == null) // no object registered
@@ -103,26 +108,16 @@ public class ConventionEventRouter<E extends Event> implements EventRouter<E> {
         Class<?> objType = object.getClass();
         String key = String.format("%s#%s(%s)", objType.getCanonicalName(),
                 this.methodName, eventType.getCanonicalName());
-        final Method handlerMethod = cacheLookup(key, eventType);
-        if (handlerMethod == null)
+        Method method = cacheLookup(key, eventType);
+        if (method == null)
             return null;
-        h = new EventRouteEventHandler<E>() {
-            @Override
-            public void handle(E event) {
-                try {
-                    handlerMethod.invoke(object, event);
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    throw new RuntimeException("Invocation of event handler method "
-                            + handlerMethod + " failed: " + e.getMessage(), e);
-                }
-            }
-        };
+        h = new InvokeMethodEndpoint<>(object, method);
         this.register(eventType, h);
         return h;
     }
 
-    private EventRouteEventHandler<E> lookup(Class<? extends E> eventType) {
-        return handlers.get(eventType);
+    private EventRouteEndpoint<R, E> lookup(Class<? extends E> eventType) {
+        return endpoints.get(eventType);
     }
 
     /**

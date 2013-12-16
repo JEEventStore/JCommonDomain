@@ -26,10 +26,11 @@ import org.jeecqrs.common.event.Event;
 /**
  * Provides an endpoint for the event route strategy and handles an event.
  * 
+ * @param <R>  the return type
  * @param <E>  the base event class
  */
-public interface EventRouteEventHandler<E extends Event> {
+public interface EventRouteEndpoint<R, E extends Event> {
 
-    void handle(E event);
+    R consumeEvent(E event);
     
 }

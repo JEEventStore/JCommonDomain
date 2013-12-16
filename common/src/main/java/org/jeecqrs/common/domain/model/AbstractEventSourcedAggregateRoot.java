@@ -23,7 +23,7 @@ package org.jeecqrs.common.domain.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jeecqrs.common.event.routing.ConventionEventRouter;
+import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.Load;
@@ -61,14 +61,14 @@ public abstract class AbstractEventSourcedAggregateRoot<T> extends AbstractAggre
     private final List<DomainEvent> changes = new ArrayList<>();
     // the persisted version this object is based on, used for optimistic concurrency
     private long version = 0l;
-    private EventRouter<DomainEvent> eventRouter;
+    private EventRouter<Void, DomainEvent> eventRouter;
 
     public AbstractEventSourcedAggregateRoot() {
-        this(new ConventionEventRouter<DomainEvent>(true, EVENT_HANDLER_NAME));
+        this(new ConventionEventRouter<Void, DomainEvent>(true, EVENT_HANDLER_NAME));
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public AbstractEventSourcedAggregateRoot(EventRouter<DomainEvent> eventRouter) {
+    public AbstractEventSourcedAggregateRoot(EventRouter<Void, DomainEvent> eventRouter) {
         Validate.notNull(eventRouter, "eventRouter must not be null");
         this.eventRouter = eventRouter;
         eventRouter.register(this);
@@ -88,7 +88,7 @@ public abstract class AbstractEventSourcedAggregateRoot<T> extends AbstractAggre
     }
 
     private void invokeHandler(DomainEvent<?> event) {
-        eventRouter.dispatch(event);
+        eventRouter.routeEvent(event);
     }
 
     /**

@@ -43,16 +43,12 @@ public abstract class AbstractEventSourcedSaga extends AbstractSaga {
     private long version = 0l;
     private boolean eventSourceReplayActive = false;
 
-    protected AbstractEventSourcedSaga(String sagaId) {
+    protected AbstractEventSourcedSaga(SagaId sagaId) {
         super(sagaId);
     }
 
-    protected AbstractEventSourcedSaga(String sagaId, EventRouter<Event> eventRouter) {
+    protected AbstractEventSourcedSaga(SagaId sagaId, EventRouter<Void, Event> eventRouter) {
         super(sagaId, eventRouter);
-    }
-
-    protected AbstractEventSourcedSaga(Identity id, EventRouter<Event> eventRouter) {
-        super(id, eventRouter);
     }
 
     @Override

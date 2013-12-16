@@ -24,14 +24,14 @@ package org.jeecqrs.common.event.routing;
 import org.jeecqrs.common.event.Event;
 
 /**
- * Provides the strategy to route an event to the desired event handler.
+ * Provides the strategy to route an event to the desired endpoint.
  */
-public interface EventRouter<E extends Event> {
+public interface EventRouter<R, E extends Event> {
     
     /**
-     * Registers all event handlers within the given object with the
+     * Registers all event route endpoints within the given object with the
      * event router. 
-     * The handler lookup strategy depends on the implementation.
+     * The lookup strategy depends on the implementation.
      * Since this method is typically called from the constructor
      * of the given object, implementing classes must assume
      * that the objects have not properly initialized at invocation.
@@ -41,20 +41,21 @@ public interface EventRouter<E extends Event> {
     void register(Object obj);
 
     /**
-     * Registers the given event handler for the event given type.
-     * There must not be already an handler registered for the given type.
+     * Registers the given event route endpoint for the event given type.
+     * There must not be already an endpoint registered for the given type.
      * 
-     * @param eventType  the event type to be handled, not null
-     * @param handler   the route handler for the event type, not null
+     * @param eventType  the event type to be routed, not null
+     * @param endpoint   the route endpoint for the event type, not null
      */
-    void register(Class<? extends E> eventType, EventRouteEventHandler<E> handler);
+    void register(Class<? extends E> eventType, EventRouteEndpoint<R, E> endpoint);
 
     /**
-     * Dispatches the given event to a suitable event handler.
-     * May throw an exception when no handler is found (implementation dependent).
+     * Routes the given event to a suitable event endpoint.
+     * May throw an exception when no endpoint is found (implementation dependent).
      * 
      * @param event  the event to bis dispatched, not null
+     * @return  the result of the method invocation, if any
      */
-    void dispatch(E event);
-    
+    R routeEvent(E event);
+
 }

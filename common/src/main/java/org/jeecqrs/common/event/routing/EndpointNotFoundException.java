@@ -24,14 +24,14 @@ package org.jeecqrs.common.event.routing;
 import org.jeecqrs.common.event.Event;
 
 /**
- * Indicates that a suitable handler for an event could not be found.
+ * Indicates that a suitable endpoint for an event could not be found.
  */
-public class HandlerNotFoundException extends RuntimeException {
+public class EndpointNotFoundException extends RuntimeException {
 
     private final Class<? extends Event> type;
 
-    public HandlerNotFoundException(Class<? extends Event> type) {
-        super("Handler not found for event of type " + type.getCanonicalName());
+    public EndpointNotFoundException(Class<? extends Event> type) {
+        super("Endpoint not found for event of type " + type.getCanonicalName());
         this.type = type;
     }
 
