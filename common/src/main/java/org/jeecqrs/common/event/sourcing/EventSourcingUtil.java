@@ -21,6 +21,7 @@
 
 package org.jeecqrs.common.event.sourcing;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -42,18 +43,24 @@ public class EventSourcingUtil {
         Validate.notNull(clazz, "class must not be null");
         Validate.notNull(events, "event must not be null");
 	try {
-	    T instance = clazz.newInstance();
+            Constructor<T> constr = clazz.getDeclaredConstructor(new Class<?>[]{ });
+            constr.setAccessible(true);
+	    T instance = (T) constr.newInstance(new Object[]{ });
+
             Method load = ReflectionUtils.findUniqueMethod(clazz, Load.class,
                     new Object[]{long.class, List.class});
             load.invoke(instance, new Object[] { version, events });
 	    return instance;
 	} catch (InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
             String msg = String.format("Cannot create object of type %s: %s",
                     clazz, e.getMessage());
 	    throw new RuntimeException(msg, e);
-	}
+	} catch (NoSuchMethodException e) {
+            String msg = String.format("Class does not provide default constructor: %s: %s",
+                    clazz, e.getMessage());
+	    throw new RuntimeException(msg, e);
+        }
     }
 
     public static <T> long retrieveVersion(T obj) {
