@@ -23,7 +23,7 @@ package org.jeecqrs.common.sagas;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.jeecqrs.common.Identity;
+import org.jeecqrs.common.commands.Command;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
@@ -43,12 +43,10 @@ public abstract class AbstractEventSourcedSaga extends AbstractSaga {
     private long version = 0l;
     private boolean eventSourceReplayActive = false;
 
-    protected AbstractEventSourcedSaga(SagaId sagaId) {
-        super(sagaId);
-    }
+    protected AbstractEventSourcedSaga() { }
 
-    protected AbstractEventSourcedSaga(SagaId sagaId, EventRouter<Void, Event> eventRouter) {
-        super(sagaId, eventRouter);
+    protected AbstractEventSourcedSaga(EventRouter<Void, Event> eventRouter) {
+        super(eventRouter);
     }
 
     @Override
@@ -58,12 +56,26 @@ public abstract class AbstractEventSourcedSaga extends AbstractSaga {
             this.changes.add(event);
     }
 
+    @Override
+    protected void executeCommand(Command command) {
+        if (eventSourceReplayActive())
+            return;
+        super.executeCommand(command);
+    }
+
+    @Override
+    protected void raiseEvent(Event event, long delay) {
+        if (eventSourceReplayActive())
+            return;
+        super.raiseEvent(event, delay);
+    }
+
     /**
      * Loads a version of the saga from a list of Event. 
      */
     @Load
     private void load(long version, List<Event> events) {
-        Validate.isTrue(version == 0l, "Cannot load on dirty saga");
+        Validate.isTrue(this.version == 0l, "Cannot load on dirty saga");
         this.eventSourceReplayActive = true;
         for (Event event : events)
             this.invokeHandler(event);

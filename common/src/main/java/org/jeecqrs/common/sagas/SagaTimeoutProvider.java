@@ -28,6 +28,6 @@ import org.jeecqrs.common.event.Event;
  */
 public interface SagaTimeoutProvider {
     
-    void requestTimeout(SagaId sagaId, Event event, long timeout);
+    void requestTimeout(String sagaId, Event event, long timeout);
     
 }

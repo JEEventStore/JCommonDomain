@@ -36,36 +36,29 @@ import org.jeecqrs.common.util.Validate;
 /**
  * Base implementation for sagas.
  * Implements the event handling scheme.
+ * 
  */
-public abstract class AbstractSaga implements Identifiable {
+public abstract class AbstractSaga implements Identifiable<String> {
 
     private static final String EVENT_HANDLER_NAME = "when";
 
     private final Logger log = Logger.getLogger(this.getClass().getName());
 
-    private final SagaId sagaId;
     private final EventRouter<Void, Event> eventRouter;
     private final Set<String> handledEvents = new HashSet<>();
 
     private CommandBus commandBus;
     private SagaTimeoutProvider timeoutProvider;
 
-    protected AbstractSaga(SagaId sagaId) {
-        this(sagaId, new ConventionEventRouter<Void, Event>(true, EVENT_HANDLER_NAME));
+    protected AbstractSaga() {
+        this(new ConventionEventRouter<Void, Event>(true, EVENT_HANDLER_NAME));
     }
 
     @SuppressWarnings("LeakingThisInConstructor")
-    protected AbstractSaga(SagaId sagaId, EventRouter<Void, Event> eventRouter) {
-        Validate.notNull(sagaId, "sagaId must not be null");
+    protected AbstractSaga(EventRouter<Void, Event> eventRouter) {
         Validate.notNull(eventRouter, "eventRouter must not be null");
-        this.sagaId = sagaId;
         this.eventRouter = eventRouter;
         eventRouter.register(this);
-    }
-
-    @Override
-    public SagaId id() {
-        return sagaId;
     }
 
     /**
@@ -77,11 +70,11 @@ public abstract class AbstractSaga implements Identifiable {
     public void handle(Event event) {
 	if (handled(event)) {
             log.log(Level.FINE, "Event {0} of {1} handled already",
-                    new Object[]{event.id().idString(), event.getClass().getSimpleName()});
+                    new Object[]{event.id(), event.getClass().getSimpleName()});
 	    return;
 	}
 	log.log(Level.FINE, "Handle event #{0}: {1}",
-                new Object[]{event.id().idString(), event});
+                new Object[]{event.id(), event});
         this.invokeHandler(event);
     }
 
@@ -92,7 +85,7 @@ public abstract class AbstractSaga implements Identifiable {
      * @return <pre>true</pre> if the event has already been handled
      */
     protected boolean handled(Event event) {
-        return handledEvents.contains(event.id().idString());
+        return handledEvents.contains(event.id().toString());
     }
 
     /**
@@ -101,7 +94,7 @@ public abstract class AbstractSaga implements Identifiable {
      * @param event  the event
      */
     protected void markedAsHandled(Event event) {
-        this.handledEvents.add(event.id().idString());
+        this.handledEvents.add(event.id().toString());
     }
 
     /**
