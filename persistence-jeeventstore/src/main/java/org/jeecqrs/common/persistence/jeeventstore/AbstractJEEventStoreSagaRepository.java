@@ -22,17 +22,16 @@
 package org.jeecqrs.common.persistence.jeeventstore;
 
 import org.jeecqrs.common.Identifiable;
-import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.util.Validate;
 
 /**
  * @param <T>  the base saga type
  */
-public abstract class AbstractJEEventStoreSagaRepository<T extends Identifiable>
-        extends AbstractJEEventStoreRepository<T> {
+public abstract class AbstractJEEventStoreSagaRepository<T extends Identifiable<String>>
+        extends AbstractJEEventStoreRepository<T, String> {
 
     @Override
-    protected T ofIdentity(Class<T> clazz, Identity id) {
+    protected T ofIdentity(Class<T> clazz, String id) {
         Validate.notNull(id, "id must not be null");
         String streamId = streamIdFor(clazz, id);
         if (!eventStore().existsStream(bucketId(), streamId))
