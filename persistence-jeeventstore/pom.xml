@@ -27,6 +27,13 @@
             <groupId>org.jeecqrs</groupId>
             <artifactId>jcommondomain-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.jodah</groupId>
+            <artifactId>typetools</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
