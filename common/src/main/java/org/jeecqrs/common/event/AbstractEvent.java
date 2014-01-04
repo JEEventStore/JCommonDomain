@@ -28,28 +28,24 @@ import org.jeecqrs.common.Identity;
 /**
  * Layer supertype for events.
  */
-public abstract class AbstractEvent<T> extends AbstractIdentifiable<T>
+public abstract class AbstractEvent<T> extends AbstractIdentifiable<T, Identity>
 	implements Event<T> {
 
-    private Identity id;
+    private DefaultEventId id;
     private Date occurredOn;
 
     public AbstractEvent() {
-        this(new DefaultEventId());
+        this(new Date());
     }
 
-    public AbstractEvent(Identity eventId) {
-        this(eventId, new Date());
-    }
-
-    public AbstractEvent(Identity eventId, Date occurredOn) {
-        this.id = eventId;
+    public AbstractEvent(Date occurredOn) {
+        this.id = new DefaultEventId();
         this.occurredOn = occurredOn;
     }
 
     @Override
     public Identity id() {
-        return id;
+        return this.id;
     }
 
     @Override
