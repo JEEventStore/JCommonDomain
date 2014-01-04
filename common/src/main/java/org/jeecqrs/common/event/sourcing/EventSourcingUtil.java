@@ -73,7 +73,6 @@ public class EventSourcingUtil {
                 throw new IllegalStateException("@Version method does not return long: " + clazz);
             return (long) res;
 	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            e.printStackTrace();
             String msg = String.format("Cannot obtain version of class of type %s: %s", clazz, e);
 	    throw new RuntimeException(msg, e);
 	}
