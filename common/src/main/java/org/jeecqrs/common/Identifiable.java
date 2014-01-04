@@ -24,13 +24,13 @@ package org.jeecqrs.common;
 /**
  * Provides the ability to identify objects.
  */
-public interface Identifiable {
+public interface Identifiable<ID> {
 
     /**
-     * Gets the unique Identity of this.
+     * Gets the unique identity of this.
      * 
      * @return the identity
      */
-    Identity id();
+    ID id();
 
 }

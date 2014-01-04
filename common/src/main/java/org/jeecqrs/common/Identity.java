@@ -33,6 +33,7 @@ public interface Identity {
      * 
      * @return the String representation
      */
-    String idString();
+    @Override
+    String toString();
 
 }

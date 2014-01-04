@@ -22,12 +22,13 @@
 package org.jeecqrs.common.domain.model;
 
 import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.Identity;
 
 /**
  * Aggregate roots are entities and mark consistency and transactional boundaries.
  * They are uniquely defined by a public id.
  * For more information on aggregate roots, refer to the DDD book.
  */
-public interface AggregateRoot<T> extends Entity<T>, Identifiable {
+public interface AggregateRoot<T, ID> extends Entity<T>, Identifiable<ID> {
 
 }

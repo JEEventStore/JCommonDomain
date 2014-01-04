@@ -21,10 +21,12 @@
 
 package org.jeecqrs.common.domain.model;
 
+import org.jeecqrs.common.Identity;
+
 /**
  * Layer supertype for aggregate roots.
  */
-public abstract class AbstractAggregateRoot<T> extends AbstractEntity<T>
-    implements AggregateRoot<T> {
+public abstract class AbstractAggregateRoot<T, ID extends Identity> extends AbstractEntity<T, ID>
+    implements AggregateRoot<T, ID> {
     
 }

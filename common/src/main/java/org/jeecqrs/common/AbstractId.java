@@ -54,16 +54,11 @@ public abstract class AbstractId<T> implements ValueObject<T>, Identity {
     }
 
     @Override
-    public String idString() {
-	return id;
-    }
-
-    @Override
     public final boolean sameValueAs(T other) {
         if (other == null || !this.getClass().equals(other.getClass()))
             return false;
         AbstractId<T> o = (AbstractId<T>) other;
-        return this.idString().equals(o.idString());
+        return this.toString().equals(o.toString());
     }
 
     @Override
@@ -78,12 +73,12 @@ public abstract class AbstractId<T> implements ValueObject<T>, Identity {
 
     @Override
     public final int hashCode() {
-	return idString().hashCode();
+	return toString().hashCode();
     }
 
     @Override
     public String toString() {
-        return idString();
+        return this.id;
     }
 
 }

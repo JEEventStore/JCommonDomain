@@ -24,13 +24,13 @@ package org.jeecqrs.common;
 /**
  * A layer supertype for Identifiable objects.
  */
-public abstract class AbstractIdentifiable<T> implements Identifiable, CompareById<T> {
+public abstract class AbstractIdentifiable<T, ID> implements Identifiable<ID>, CompareById<T> {
 
     @Override
     public final boolean sameIdentityAs(T other) {
         if (other == null || !this.getClass().equals(other.getClass()))
             return false;
-        AbstractIdentifiable<T> o = (AbstractIdentifiable<T>) other;
+        AbstractIdentifiable<T, ID> o = (AbstractIdentifiable<T, ID>) other;
         return this.id().equals(o.id());
     }
  

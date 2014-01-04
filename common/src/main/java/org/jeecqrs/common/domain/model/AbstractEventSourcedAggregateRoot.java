@@ -23,6 +23,7 @@ package org.jeecqrs.common.domain.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
@@ -53,7 +54,8 @@ import org.jeecqrs.common.util.Validate;
  * any changes, the event store repository calls the internal {@link #store}
  * method.
  */
-public abstract class AbstractEventSourcedAggregateRoot<T> extends AbstractAggregateRoot<T> {
+public abstract class AbstractEventSourcedAggregateRoot<T, ID extends Identity>
+        extends AbstractAggregateRoot<T, ID> {
 
     private static final String EVENT_HANDLER_NAME = "when";
 
@@ -96,7 +98,7 @@ public abstract class AbstractEventSourcedAggregateRoot<T> extends AbstractAggre
      */
     @Load
     private void load(long version, List<DomainEvent> events) {
-        Validate.isTrue(version == 0l, "Cannot loadFromEventStream() on dirty AggregateRoot");
+        Validate.isTrue(this.version == 0l, "Cannot loadFromEventStream() on dirty AggregateRoot");
         for (DomainEvent event : events)
             this.invokeHandler(event);
         this.version = version;
@@ -121,4 +123,4 @@ public abstract class AbstractEventSourcedAggregateRoot<T> extends AbstractAggre
         return this.version;
     }
 
-}
+    }

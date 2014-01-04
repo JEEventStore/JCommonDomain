@@ -27,9 +27,9 @@ import org.jeecqrs.common.Identity;
  * Provides the ability to load and store objects.
  * 
  * @param <T>  the type of the objects
- * @param <K>  the type to identify the objects
+ * @param <ID>  the type to identify the objects
  */
-public interface Repository<T, K> {
+public interface Repository<T, ID> {
 
     /**
      * Retrieves the object with the given identity.
@@ -38,7 +38,7 @@ public interface Repository<T, K> {
      * @param id  the id of the object to retrieve
      * @return    the object with the given id
      */
-    T ofIdentity(K id);
+    T ofIdentity(ID id);
 
     /**
      * Adds an object to the repository.

@@ -22,10 +22,11 @@
 package org.jeecqrs.common.domain.model;
 
 import org.jeecqrs.common.AbstractIdentifiable;
+import org.jeecqrs.common.Identity;
 
 /**
  * Layer supertype for entities.
  */
-public abstract class AbstractEntity<T> extends AbstractIdentifiable<T> implements Entity<T> {
+public abstract class AbstractEntity<T, ID> extends AbstractIdentifiable<T, ID> implements Entity<T> {
 
 }
