@@ -27,17 +27,13 @@ import org.jeecqrs.common.Identity;
 /**
  * Layer supertype for commands.
  */
-public abstract class AbstractCommand<T> extends AbstractIdentifiable<T>
+public abstract class AbstractCommand<T> extends AbstractIdentifiable<T, Identity>
 	implements Command<T> {
 
-    private Identity id;
+    private DefaultCommandId id;
 
-    public AbstractCommand() {
+    protected AbstractCommand() {
 	this.id = new DefaultCommandId();
-    }
-
-    public AbstractCommand(Identity eventId) {
-        this.id = eventId;
     }
 
     @Override
