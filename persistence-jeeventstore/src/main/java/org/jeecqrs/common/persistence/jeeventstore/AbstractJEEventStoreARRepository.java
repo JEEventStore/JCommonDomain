@@ -21,13 +21,27 @@
 
 package org.jeecqrs.common.persistence.jeeventstore;
 
+import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
+import org.jodah.typetools.TypeResolver;
 
 /**
  *
  * @param <T>  the aggregate type
+ * @param <ID>  the type used to identify aggregate roots
  */
-public abstract class AbstractJEEventStoreARRepository<T extends AbstractEventSourcedAggregateRoot> 
-    extends AbstractJEEventStoreRepository<T> {
+public abstract class
+AbstractJEEventStoreARRepository<T extends AbstractEventSourcedAggregateRoot<T, ID>, ID extends Identity> 
+    extends AbstractJEEventStoreRepository<T, ID> {
+
+    public AbstractJEEventStoreARRepository() {
+        Class<?>[] typeArguments = TypeResolver
+                .resolveRawArguments(AbstractJEEventStoreARRepository.class, getClass());
+        Class<T> type = (Class) typeArguments[0];
+        if (TypeResolver.Unknown.class.equals(type))
+            throw new IllegalStateException("Object type parameter missing on " +
+                    AbstractJEEventStoreARRepository.class.getSimpleName() + " for class " + getClass());
+        this.setObjectType(type);
+    }
 
 }
