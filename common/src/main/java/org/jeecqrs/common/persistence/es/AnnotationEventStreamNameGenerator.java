@@ -27,13 +27,15 @@ import org.jeecqrs.common.Identity;
 
 /**
  * Provides the event stream name using an annotation.
+ * 
+ * @param <ID>  the type used to identify individual streams
  */
-public class AnnotationEventStreamNameGenerator implements EventStreamNameGenerator {
+public class AnnotationEventStreamNameGenerator<ID> implements EventStreamNameGenerator<ID> {
  
     private static final Map<Class, String> streamNameCache = new ConcurrentHashMap<>();
     
     @Override
-    public String streamNameFor(Class<?> clazz, Identity id) {
+    public String streamNameFor(Class<?> clazz, ID id) {
         // no need to synchronize cache access, since result is deterministic
 	String name = streamNameCache.get(clazz);
 	if (name == null) {
@@ -50,7 +52,11 @@ public class AnnotationEventStreamNameGenerator implements EventStreamNameGenera
 	    name = name.trim();
 	    streamNameCache.put(clazz, name);
 	}
-	return name;
+        return new StringBuilder()
+		.append(name)
+		.append(":")
+		.append(id.toString())
+		.toString();
     }
 
 }
