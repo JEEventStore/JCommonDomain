@@ -22,7 +22,6 @@
 package org.jeecqrs.common.persistence.jeeventstore;
 
 import java.util.List;
-import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
@@ -33,21 +32,31 @@ import org.jeeventstore.DuplicateCommitException;
 import org.jeeventstore.EventStore;
 import org.jeeventstore.ReadableEventStream;
 import org.jeeventstore.WritableEventStream;
+import org.jeeventstore.util.IteratorUtils;
+import org.jodah.typetools.TypeResolver;
 
 /**
  *
  * @param <T>  the entity type
  */
-public abstract class AbstractJEEventStoreRepository<T extends Identifiable> 
-    extends AbstractEventSourcingRepository<T> {
+public abstract class AbstractJEEventStoreRepository<T extends Identifiable<ID>, ID> 
+    extends AbstractEventSourcingRepository<T, ID> {
+
+    public AbstractJEEventStoreRepository() {
+    }
+
+    public AbstractJEEventStoreRepository(Class<T> objectType) {
+        super(objectType);
+    }
 
     protected abstract String bucketId();
 
     @Override
     protected T loadFromStream(Class<T> clazz, String streamId) {
         ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
+        List<Event> events = (List) IteratorUtils.toList(stream.events());
         return (T) EventSourcingUtil.createFromEventStream(clazz,
-                stream.version(), (List) stream.events());
+                stream.version(), events);
     }
 
     @Override
