@@ -24,7 +24,7 @@ package org.jeecqrs.common.commands;
 import org.jeecqrs.common.AbstractId;
 
 /**
- * Default id implementation for commands.
+ * Default implementation for command ids.
  */
 public class DefaultCommandId extends AbstractId<DefaultCommandId> {
 
