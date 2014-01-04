@@ -21,13 +21,13 @@
 
 package org.jeecqrs.common.persistence.es;
 
-import org.jeecqrs.common.Identity;
-
 /**
  * Provides a strategy to obtain a name for an event stream.
+ * 
+ * @param <ID>  the type used to identify objects
  */
-public interface EventStreamNameGenerator {
+public interface EventStreamNameGenerator<ID> {
 
-    String streamNameFor(Class<?> clazz, Identity id);
+    String streamNameFor(Class<?> clazz, ID id);
 
 }

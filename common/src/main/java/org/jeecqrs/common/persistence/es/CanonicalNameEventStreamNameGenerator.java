@@ -21,19 +21,19 @@
 
 package org.jeecqrs.common.persistence.es;
 
-import org.jeecqrs.common.Identity;
-
 /**
  * Provides the class's canonical name as a name for the event stream.
+ * 
+ * @param <ID>  the type used to identify individual streams
  */
-public class CanonicalNameEventStreamNameGenerator implements EventStreamNameGenerator {
+public class CanonicalNameEventStreamNameGenerator<ID> implements EventStreamNameGenerator<ID> {
  
     @Override
-    public String streamNameFor(Class<?> clazz, Identity id) {
+    public String streamNameFor(Class<?> clazz, ID id) {
         return new StringBuilder()
 		.append(clazz.getCanonicalName())
 		.append(":")
-		.append(id.idString())
+		.append(id.toString())
 		.toString();
     }
 
