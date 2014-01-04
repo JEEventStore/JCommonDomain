@@ -25,11 +25,12 @@ import java.io.Serializable;
 import java.util.Date;
 import org.jeecqrs.common.CompareById;
 import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.Identity;
 
 /**
  * An event is something that is unique and occurred at a specific time.
  */
-public interface Event<T> extends Serializable, Identifiable, CompareById<T> {
+public interface Event<T> extends Serializable, Identifiable<Identity>, CompareById<T> {
 
     /**
      * Gets the time when this event occurred.
