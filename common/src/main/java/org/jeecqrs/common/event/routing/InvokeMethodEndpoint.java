@@ -46,7 +46,7 @@ public class InvokeMethodEndpoint<R, E extends Event> implements EventRouteEndpo
             return (R) method.invoke(object, event);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new RuntimeException("Invocation of endpoint method "
-                    + method + " failed: " + e.getMessage(), e);
+                    + method + " on object "+ object + " failed: " + e.getMessage(), e);
         }
     }
     
