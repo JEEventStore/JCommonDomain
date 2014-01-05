@@ -28,4 +28,11 @@ import org.jeecqrs.common.AbstractId;
  */
 public class DefaultEventId extends AbstractId<DefaultEventId> {
 
+    public DefaultEventId() {
+    }
+
+    public DefaultEventId(String idString) {
+        super(idString);
+    }
+
 }

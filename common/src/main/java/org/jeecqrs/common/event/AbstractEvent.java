@@ -38,8 +38,16 @@ public abstract class AbstractEvent<T> extends AbstractIdentifiable<T, Identity>
         this(new Date());
     }
 
+    public AbstractEvent(String idString, Date occurredOn) {
+        this(new DefaultEventId(), occurredOn);
+    }
+
     public AbstractEvent(Date occurredOn) {
-        this.id = new DefaultEventId();
+        this(new DefaultEventId(), occurredOn);
+    }
+
+    public AbstractEvent(DefaultEventId id, Date occurredOn) {
+        this.id = id;
         this.occurredOn = occurredOn;
     }
 
