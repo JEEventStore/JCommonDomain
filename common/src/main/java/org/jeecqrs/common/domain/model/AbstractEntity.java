@@ -26,6 +26,9 @@ import org.jeecqrs.common.Identity;
 
 /**
  * Layer supertype for entities.
+ * 
+ * @param <T>  the actual entity type
+ * @param <ID>  the identifier type
  */
 public abstract class AbstractEntity<T, ID> extends AbstractIdentifiable<T, ID> implements Entity<T> {
 
