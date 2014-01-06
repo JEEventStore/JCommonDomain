@@ -22,7 +22,6 @@
 package org.jeecqrs.common.domain.model;
 
 import org.jeecqrs.common.AbstractIdentifiable;
-import org.jeecqrs.common.Identity;
 
 /**
  * Layer supertype for entities.
