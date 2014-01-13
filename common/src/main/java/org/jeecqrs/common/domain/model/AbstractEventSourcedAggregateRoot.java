@@ -123,4 +123,4 @@ public abstract class AbstractEventSourcedAggregateRoot<T, ID extends Identity>
         return this.version;
     }
 
-    }
+}
