@@ -18,15 +18,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 package org.jeecqrs.common.event.sourcing;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jeecqrs.common.domain.model.DomainEvent;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.util.ReflectionUtils;
 import org.jeecqrs.common.util.Validate;
@@ -35,47 +36,76 @@ import org.jeecqrs.common.util.Validate;
  * Utilities to apply event sourcing.
  */
 public class EventSourcingUtil {
-    
+
     private final static Map<String, Method> methodCache = new HashMap<>();
 
     public static <T, E extends Event> T createFromEventStream(
             Class<T> clazz, long version, List<E> events) {
         Validate.notNull(clazz, "class must not be null");
         Validate.notNull(events, "event must not be null");
-	try {
-            Constructor<T> constr = clazz.getDeclaredConstructor(new Class<?>[]{ });
+        try {
+            Constructor<T> constr = clazz.getDeclaredConstructor(new Class<?>[]{});
             constr.setAccessible(true);
-	    T instance = (T) constr.newInstance(new Object[]{ });
+            T instance = (T) constr.newInstance(new Object[]{});
 
             Method load = ReflectionUtils.findUniqueMethod(clazz, Load.class,
                     new Object[]{long.class, List.class});
-            load.invoke(instance, new Object[] { version, events });
-	    return instance;
-	} catch (InstantiationException | IllegalAccessException |
+            load.invoke(instance, new Object[]{version, events});
+            return instance;
+        } catch (InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException e) {
             String msg = String.format("Cannot create object of type %s: %s",
                     clazz, e.getMessage());
-	    throw new RuntimeException(msg, e);
-	} catch (NoSuchMethodException e) {
+            throw new RuntimeException(msg, e);
+        } catch (NoSuchMethodException e) {
             String msg = String.format("Class does not provide default constructor: %s: %s",
                     clazz, e.getMessage());
-	    throw new RuntimeException(msg, e);
+            throw new RuntimeException(msg, e);
         }
     }
 
     public static <T> long retrieveVersion(T obj) {
         Class<T> clazz = (Class<T>) obj.getClass();
         Validate.notNull(obj, "obj must not be null");
-	try {
+        try {
             Method version = ReflectionUtils.findUniqueMethod(clazz, Version.class, new Object[]{});
-            Object res = version.invoke(obj, new Object[] { });
-            if (!Long.class.equals(res.getClass()) && !long.class.equals(res.getClass()))
+            Object res = version.invoke(obj, new Object[]{});
+            if (!Long.class.equals(res.getClass()) && !long.class.equals(res.getClass())) {
                 throw new IllegalStateException("@Version method does not return long: " + clazz);
+            }
             return (long) res;
-	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             String msg = String.format("Cannot obtain version of class of type %s: %s", clazz, e);
-	    throw new RuntimeException(msg, e);
-	}
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    public static <T> List<DomainEvent> retrieveChanges(T obj) {
+        final List<DomainEvent> changes = new ArrayList<>();
+        EventSourcingBus<DomainEvent> bus = new EventSourcingBus<DomainEvent>() {
+            @Override
+            public void store(DomainEvent event) {
+                changes.add(event);
+            }
+            @Override
+            public void commit(String commitId) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+        invokeStoreMethod(obj, bus);;
+        return changes;
+    }
+
+    public static <T> void invokeStoreMethod(T obj, EventSourcingBus<? extends Event> bus) {
+        try {
+            Method store = ReflectionUtils.findUniqueMethod(obj.getClass(),
+                    Store.class, new Object[]{EventSourcingBus.class});
+            store.invoke(obj, new Object[]{bus});
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            String msg = String.format("Cannot find store method for type %s: %s",
+                    obj.getClass(), e.getMessage());
+            throw new RuntimeException(msg, e);
+        }
     }
 
 }

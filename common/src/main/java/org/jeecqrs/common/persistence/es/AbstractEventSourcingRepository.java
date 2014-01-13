@@ -100,15 +100,7 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>
     }
 
     private void invokeStore(T obj, EventSourcingBus<Event> bus) {
-	try {
-            Method store = ReflectionUtils.findUniqueMethod(obj.getClass(),
-                    Store.class, new Object[]{EventSourcingBus.class});
-            store.invoke(obj, new Object[] { bus });
-	} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            String msg = String.format("Cannot find store method for type %s: %s",
-                    obj.getClass(), e.getMessage());
-	    throw new RuntimeException(msg, e);
-	}
+        EventSourcingUtil.invokeStoreMethod(obj, bus);
     }
 
     protected long retrieveVersion(T obj) {
