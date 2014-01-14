@@ -28,8 +28,9 @@ import org.jeecqrs.common.Identity;
  * 
  * @param <T>  the type of the objects
  * @param <ID>  the type to identify the objects
+ * @param <CID>  the type to identify commits
  */
-public interface Repository<T, ID> {
+public interface Repository<T, ID, CID> {
 
     /**
      * Retrieves the object with the given identity.
@@ -46,7 +47,7 @@ public interface Repository<T, ID> {
      * @param object  the object to add
      * @param commitId  unique id for this commit
      */
-    void add(T object, Identity commitId);
+    void add(T object, CID commitId);
 
     /**
      * Saves an instance of the object to the repository.
@@ -54,7 +55,7 @@ public interface Repository<T, ID> {
      * @param object the object to save
      * @param commitId  unique id for this commit
      */
-    void save(T object, Identity commitId);
+    void save(T object, CID commitId);
     
 }
 
