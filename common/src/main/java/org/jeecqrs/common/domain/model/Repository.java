@@ -21,8 +21,6 @@
 
 package org.jeecqrs.common.domain.model;
 
-import org.jeecqrs.common.Identity;
-
 /**
  * Provides the ability to load and store objects.
  * 
