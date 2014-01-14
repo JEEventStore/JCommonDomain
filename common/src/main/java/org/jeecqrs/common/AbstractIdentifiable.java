@@ -46,6 +46,8 @@ public abstract class AbstractIdentifiable<T, ID> implements Identifiable<ID>, C
     
     @Override
     public final int hashCode() {
+        if (this.id() == null)
+            throw new IllegalStateException("Cannot call hashCode() when id() returns null");
         return this.id().hashCode();
     }
 
