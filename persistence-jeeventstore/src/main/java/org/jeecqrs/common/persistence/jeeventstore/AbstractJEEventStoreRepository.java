@@ -22,7 +22,6 @@
 package org.jeecqrs.common.persistence.jeeventstore;
 
 import java.util.List;
-import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
@@ -33,14 +32,13 @@ import org.jeeventstore.EventStore;
 import org.jeeventstore.ReadableEventStream;
 import org.jeeventstore.WritableEventStream;
 import org.jeeventstore.util.IteratorUtils;
-import org.jodah.typetools.TypeResolver;
 
 /**
  *
  * @param <T>  the entity type
  */
-public abstract class AbstractJEEventStoreRepository<T extends Identifiable<ID>, ID> 
-    extends AbstractEventSourcingRepository<T, ID> {
+public abstract class AbstractJEEventStoreRepository<T, ID, CID> 
+    extends AbstractEventSourcingRepository<T, ID, CID> {
 
     public AbstractJEEventStoreRepository() {
     }
@@ -50,6 +48,7 @@ public abstract class AbstractJEEventStoreRepository<T extends Identifiable<ID>,
     }
 
     protected abstract String bucketId();
+    protected abstract EventStore eventStore();
 
     @Override
     protected T loadFromStream(Class<T> clazz, String streamId) {
@@ -95,7 +94,5 @@ public abstract class AbstractJEEventStoreRepository<T extends Identifiable<ID>,
             throw new RuntimeException("committing changes failed: " + e.getMessage(), e);
         }
     }
-
-    protected abstract EventStore eventStore();
 
 }

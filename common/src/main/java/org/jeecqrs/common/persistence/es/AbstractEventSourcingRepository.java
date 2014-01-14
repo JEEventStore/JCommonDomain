@@ -21,27 +21,20 @@
 
 package org.jeecqrs.common.persistence.es;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jeecqrs.common.Identifiable;
-import org.jeecqrs.common.Identity;
-import org.jeecqrs.common.domain.model.Repository;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
-import org.jeecqrs.common.event.sourcing.Store;
-import org.jeecqrs.common.util.ReflectionUtils;
 import org.jeecqrs.common.util.Validate;
 
 /**
  *
  * @param <T>  the entity type
  * @param <ID>  the type used to identify entities
+ * @param <CID>  the type used to identify commits
  */
-public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>, ID> 
-        implements Repository<T, ID> {
+public abstract class AbstractEventSourcingRepository<T, ID, CID> {
 
     private Class<T> objectType;
 
@@ -54,6 +47,7 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>
 
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
+    protected abstract EventStreamNameGenerator<T, ID> streamNameGenerator();
     protected abstract T loadFromStream(Class<T> clazz, String streamId);
     protected abstract EventSourcingBus<Event> busForAdd(String streamId);
     protected abstract EventSourcingBus<Event> busForSave(String streamId, long version);
@@ -61,7 +55,7 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>
     protected T ofIdentity(Class<T> clazz, ID id) {
         Validate.notNull(id, "id must not be null");
 	long start = System.currentTimeMillis();
-        String streamId = streamIdFor(clazz, id);
+        String streamId = streamNameGenerator().streamNameFor(clazz, id);
         T obj = loadFromStream(clazz, streamId);
 	long end = System.currentTimeMillis();
 	log.log(Level.FINE, "Loaded in {0} ms entity {1}#{2}",
@@ -69,30 +63,23 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>
 	return obj;
     }
 
-    @Override
-    public T ofIdentity(ID id) {
+    protected T ofIdentity(ID id) {
         if (objectType == null)
             throw new IllegalStateException("Cannot call #ofIdentity() without objectType");
         return this.ofIdentity(objectType, id);
     }
 
-    protected String streamIdFor(Class<?> clazz, ID id) {
-        return streamNameGenerator().streamNameFor(clazz, id);
-    }
-
-    @Override
-    public void add(T obj, Identity commitId) {
+    protected void add(T obj, CID commitId) {
         Validate.notNull(obj, "object must not be null");
-        String streamId = streamIdFor(obj.getClass(), obj.id());
+        String streamId = streamNameGenerator().streamNameFor(obj);
         EventSourcingBus<Event> bus = busForAdd(streamId);
         invokeStore(obj, bus);
         bus.commit(commitId.toString());
     }
 
-    @Override
-    public void save(T obj, Identity commitId) {
+    protected void save(T obj, CID commitId) {
         Validate.notNull(obj, "object must not be null");
-        String streamId = streamIdFor(obj.getClass(), obj.id());
+        String streamId = streamNameGenerator().streamNameFor(obj);
         long version = retrieveVersion(obj);
         EventSourcingBus<Event> bus = busForSave(streamId, version);
         invokeStore(obj, bus);
@@ -107,8 +94,8 @@ public abstract class AbstractEventSourcingRepository<T extends Identifiable<ID>
         return EventSourcingUtil.retrieveVersion(obj);
     }
 
-    protected EventStreamNameGenerator streamNameGenerator() {
-        return new CanonicalNameEventStreamNameGenerator();
+    public Class<T> objectType() {
+        return objectType;
     }
 
     protected final void setObjectType(Class<T> objectType) {

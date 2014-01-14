@@ -22,21 +22,30 @@
 package org.jeecqrs.common.persistence.jeeventstore;
 
 import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.persistence.es.CanonicalNameEventStreamNameGenerator;
+import org.jeecqrs.common.persistence.es.EventStreamNameGenerator;
 import org.jeecqrs.common.util.Validate;
 
 /**
  * @param <T>  the base saga type
  */
-public abstract class AbstractJEEventStoreSagaRepository<T extends Identifiable<String>>
-        extends AbstractJEEventStoreRepository<T, String> {
+public abstract class AbstractJEEventStoreSagaRepository<T extends Identifiable<String>, CID>
+        extends AbstractJEEventStoreRepository<T, String, CID> {
+
+    private EventStreamNameGenerator<T, String> esng = new CanonicalNameEventStreamNameGenerator<>();
 
     @Override
     protected T ofIdentity(Class<T> clazz, String id) {
         Validate.notNull(id, "id must not be null");
-        String streamId = streamIdFor(clazz, id);
+        String streamId = streamNameGenerator().streamNameFor(clazz, id);
         if (!eventStore().existsStream(bucketId(), streamId))
             return null;
         return super.ofIdentity(clazz, id);
+    }
+
+    @Override
+    protected EventStreamNameGenerator<T, String> streamNameGenerator() {
+        return esng;
     }
 
 }

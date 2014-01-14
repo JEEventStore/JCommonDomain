@@ -23,19 +23,27 @@ package org.jeecqrs.common.persistence.es;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.Identity;
 
 /**
  * Provides the event stream name using an annotation.
  * 
+ * @param <T>  the base type of objects that can be identified with this streamNameGenreator
  * @param <ID>  the type used to identify individual streams
  */
-public class AnnotationEventStreamNameGenerator<ID> implements EventStreamNameGenerator<ID> {
+public class AnnotationEventStreamNameGenerator<T extends Identifiable<ID>, ID>
+        implements EventStreamNameGenerator<T, ID> {
  
     private static final Map<Class, String> streamNameCache = new ConcurrentHashMap<>();
+
+    @Override
+    public String streamNameFor(T obj) {
+        return streamNameFor((Class) obj.getClass(), obj.id());
+    }
     
     @Override
-    public String streamNameFor(Class<?> clazz, ID id) {
+    public String streamNameFor(Class<? extends T> clazz, ID id) {
         // no need to synchronize cache access, since result is deterministic
 	String name = streamNameCache.get(clazz);
 	if (name == null) {

@@ -23,6 +23,8 @@ package org.jeecqrs.common.persistence.jeeventstore;
 
 import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
+import org.jeecqrs.common.persistence.es.CanonicalNameEventStreamNameGenerator;
+import org.jeecqrs.common.persistence.es.EventStreamNameGenerator;
 import org.jodah.typetools.TypeResolver;
 
 /**
@@ -31,9 +33,12 @@ import org.jodah.typetools.TypeResolver;
  * @param <ID>  the type used to identify aggregate roots
  */
 public abstract class
-AbstractJEEventStoreARRepository<T extends AbstractEventSourcedAggregateRoot<T, ID>, ID extends Identity> 
-    extends AbstractJEEventStoreRepository<T, ID> {
-
+AbstractJEEventStoreARRepository<
+        T extends AbstractEventSourcedAggregateRoot<T, ? extends Identity>,
+        ID,
+        CID> 
+    extends AbstractJEEventStoreRepository<T, ID, CID> {
+    
     public AbstractJEEventStoreARRepository() {
         Class<?>[] typeArguments = TypeResolver
                 .resolveRawArguments(AbstractJEEventStoreARRepository.class, getClass());

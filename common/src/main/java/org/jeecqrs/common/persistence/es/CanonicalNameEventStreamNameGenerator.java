@@ -21,15 +21,24 @@
 
 package org.jeecqrs.common.persistence.es;
 
+import org.jeecqrs.common.Identifiable;
+
 /**
  * Provides the class's canonical name as a name for the event stream.
  * 
+ * @param <T>  the base type of objects that can be identified with this streamNameGenreator
  * @param <ID>  the type used to identify individual streams
  */
-public class CanonicalNameEventStreamNameGenerator<ID> implements EventStreamNameGenerator<ID> {
+public class CanonicalNameEventStreamNameGenerator<T extends Identifiable<ID>, ID>
+        implements EventStreamNameGenerator<T, ID> {
+
+    @Override
+    public String streamNameFor(T obj) {
+        return streamNameFor((Class) obj.getClass(), obj.id());
+    }
  
     @Override
-    public String streamNameFor(Class<?> clazz, ID id) {
+    public String streamNameFor(Class<? extends T> clazz, ID id) {
         return new StringBuilder()
 		.append(clazz.getCanonicalName())
 		.append(":")
