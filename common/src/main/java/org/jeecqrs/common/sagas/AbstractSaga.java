@@ -27,7 +27,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jeecqrs.common.Identifiable;
 import org.jeecqrs.common.commands.Command;
-import org.jeecqrs.common.commands.CommandBus;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
@@ -47,7 +46,7 @@ public abstract class AbstractSaga implements Identifiable<String> {
     private final EventRouter<Void, Event> eventRouter;
     private final Set<String> handledEvents = new HashSet<>();
 
-    private CommandBus commandBus;
+    private SagaCommandBus commandBus;
     private SagaTimeoutProvider timeoutProvider;
 
     protected AbstractSaga() {
@@ -107,10 +106,16 @@ public abstract class AbstractSaga implements Identifiable<String> {
         markedAsHandled(event);
     }
 
-    protected void executeCommand(Command command) {
+    protected void send(Command command) {
         if (commandBus == null)
             throw new IllegalStateException("No commandBus has been injected");
         commandBus.send(command);
+    }
+
+    protected void sendAndForget(Command command) {
+        if (commandBus == null)
+            throw new IllegalStateException("No commandBus has been injected");
+        commandBus.sendAndForget(command);
     }
 
     protected void raiseEvent(final Event event, final long delay) {
@@ -124,7 +129,7 @@ public abstract class AbstractSaga implements Identifiable<String> {
      * 
      * @param commandBus 
      */
-    public void setCommandBus(CommandBus commandBus) {
+    public void setCommandBus(SagaCommandBus commandBus) {
         this.commandBus = commandBus;
     }
 

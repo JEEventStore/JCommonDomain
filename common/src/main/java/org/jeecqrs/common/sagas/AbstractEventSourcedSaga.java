@@ -57,10 +57,17 @@ public abstract class AbstractEventSourcedSaga extends AbstractSaga {
     }
 
     @Override
-    protected void executeCommand(Command command) {
+    protected void send(Command command) {
         if (eventSourceReplayActive())
             return;
-        super.executeCommand(command);
+        super.send(command);
+    }
+
+    @Override
+    protected void sendAndForget(Command command) {
+        if (eventSourceReplayActive())
+            return;
+        super.sendAndForget(command);
     }
 
     @Override
