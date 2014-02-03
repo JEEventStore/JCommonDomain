@@ -24,6 +24,7 @@ package org.jeecqrs.common.domain.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.jeecqrs.common.Identity;
+import org.jeecqrs.common.event.routing.EndpointNotFoundException;
 import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
@@ -90,7 +91,11 @@ public abstract class AbstractEventSourcedAggregateRoot<T, ID extends Identity>
     }
 
     private void invokeHandler(DomainEvent<?> event) {
-        eventRouter.routeEvent(event);
+        try {
+            eventRouter.routeEvent(event);
+        } catch (EndpointNotFoundException e) {
+            throw new RuntimeException("Cannot invoke event handler in " + this.getClass(), e);
+        }
     }
 
     /**
