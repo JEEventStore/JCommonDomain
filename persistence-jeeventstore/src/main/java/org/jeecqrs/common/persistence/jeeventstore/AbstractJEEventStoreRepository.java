@@ -51,11 +51,15 @@ public abstract class AbstractJEEventStoreRepository<T, ID, CID>
     protected abstract EventStore eventStore();
 
     @Override
-    protected T loadFromStream(Class<T> clazz, String streamId) {
+    protected T createFreshInstance(Class<T> clazz, ID id) {
+        return EventSourcingUtil.createByDefaultConstructor(clazz);
+    }
+
+    @Override
+    protected void loadFromStream(T obj, String streamId) {
         ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
         List<Event> events = (List) IteratorUtils.toList(stream.events());
-        return (T) EventSourcingUtil.createFromEventStream(clazz,
-                stream.version(), events);
+        EventSourcingUtil.loadEventStreamIntoObject(obj, stream.version(), events);
     }
 
     @Override

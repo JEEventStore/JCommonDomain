@@ -41,8 +41,10 @@ public class EventSourcingUtilTest {
         orig.add(new TestEvent());
         orig.add(new TestEvent());
 
-        TestObject obj = EventSourcingUtil.createFromEventStream(TestObject.class, 27, orig);
+        TestObject obj = EventSourcingUtil.createByDefaultConstructor(TestObject.class);
         assertNotNull(obj);
+        assertEquals(obj.version, 0l);
+        EventSourcingUtil.loadEventStreamIntoObject(obj, 27, orig);
         assertEquals(obj.version, 27l);
         assertEquals(obj.stream, orig);
 

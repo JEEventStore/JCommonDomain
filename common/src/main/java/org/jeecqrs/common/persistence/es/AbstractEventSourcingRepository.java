@@ -48,7 +48,8 @@ public abstract class AbstractEventSourcingRepository<T, ID, CID> {
     private Logger log = Logger.getLogger(this.getClass().getCanonicalName());
 
     protected abstract EventStreamNameGenerator<T, ID> streamNameGenerator();
-    protected abstract T loadFromStream(Class<T> clazz, String streamId);
+    protected abstract T createFreshInstance(Class<T> clazz, ID id);
+    protected abstract void loadFromStream(T obj, String streamId);
     protected abstract EventSourcingBus<Event> busForAdd(String streamId);
     protected abstract EventSourcingBus<Event> busForSave(String streamId, long version);
 
@@ -56,7 +57,8 @@ public abstract class AbstractEventSourcingRepository<T, ID, CID> {
         Validate.notNull(id, "id must not be null");
 	long start = System.currentTimeMillis();
         String streamId = streamNameGenerator().streamNameFor(clazz, id);
-        T obj = loadFromStream(clazz, streamId);
+        T obj = createFreshInstance(clazz, id);
+        loadFromStream(obj, streamId);
 	long end = System.currentTimeMillis();
 	log.log(Level.FINE, "Loaded in {0} ms entity {1}#{2}",
                 new Object[]{end-start, clazz.getSimpleName(), id});

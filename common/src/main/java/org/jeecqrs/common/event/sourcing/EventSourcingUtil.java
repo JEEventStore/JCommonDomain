@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jeecqrs.common.domain.model.DomainEvent;
 import org.jeecqrs.common.event.Event;
 import org.jeecqrs.common.util.ReflectionUtils;
@@ -39,19 +41,12 @@ public class EventSourcingUtil {
 
     private final static Map<String, Method> methodCache = new HashMap<>();
 
-    public static <T, E extends Event> T createFromEventStream(
-            Class<T> clazz, long version, List<E> events) {
+    public static <T> T createByDefaultConstructor(Class<T> clazz) {
         Validate.notNull(clazz, "class must not be null");
-        Validate.notNull(events, "event must not be null");
         try {
             Constructor<T> constr = clazz.getDeclaredConstructor(new Class<?>[]{});
             constr.setAccessible(true);
-            T instance = (T) constr.newInstance(new Object[]{});
-
-            Method load = ReflectionUtils.findUniqueMethod(clazz, Load.class,
-                    new Object[]{long.class, List.class});
-            load.invoke(instance, new Object[]{version, events});
-            return instance;
+            return (T) constr.newInstance(new Object[]{});
         } catch (InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException e) {
             String msg = String.format("Cannot create object of type %s: %s",
@@ -61,6 +56,23 @@ public class EventSourcingUtil {
             String msg = String.format("Class does not provide default constructor: %s: %s",
                     clazz, e.getMessage());
             throw new RuntimeException(msg, e);
+        }
+    }
+
+    public static <T, E extends Event> void loadEventStreamIntoObject(T obj, long version, List<E> events) {
+        Validate.notNull(obj, "obj must not be null");
+        Validate.notNull(events, "event must not be null");
+        long curVersion = retrieveVersion(obj);
+        if (curVersion > 0)
+            throw new IllegalArgumentException("object is not fresh, has version " + curVersion);
+        try {
+            Method load = ReflectionUtils.findUniqueMethod(obj.getClass(), Load.class,
+                    new Object[]{long.class, List.class});
+            load.invoke(obj, new Object[]{version, events});
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            String msg = String.format("Cannot load event stream for object of type %s: %s",
+                    obj.getClass(), ex.getMessage());
+            throw new RuntimeException(msg, ex);
         }
     }
 

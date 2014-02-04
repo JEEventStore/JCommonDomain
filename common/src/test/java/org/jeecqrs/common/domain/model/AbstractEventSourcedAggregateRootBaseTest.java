@@ -15,7 +15,9 @@ public abstract class AbstractEventSourcedAggregateRootBaseTest<T extends Abstra
     protected T replayed_instance(T template) {
         List<DomainEvent> list = (List) EventSourcingUtil.retrieveChanges(template);
         long version = EventSourcingUtil.retrieveVersion(template);
-        return EventSourcingUtil.createFromEventStream(arClass(), version, list);
+        T instance = EventSourcingUtil.createByDefaultConstructor(arClass());
+        EventSourcingUtil.loadEventStreamIntoObject(instance, version, list);
+        return instance;
     }
 
     @Test
