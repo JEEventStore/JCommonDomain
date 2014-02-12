@@ -55,6 +55,11 @@ public abstract class AbstractJEEventStoreRepository<T, ID, CID>
         return EventSourcingUtil.createByDefaultConstructor(clazz);
     }
 
+    protected boolean exists(Class<T> clazz, ID id) {
+        String streamId = streamNameGenerator().streamNameFor(clazz, id);
+        return eventStore().existsStream(bucketId(), streamId);
+    }
+
     @Override
     protected void loadFromStream(T obj, String streamId) {
         ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
