@@ -92,10 +92,10 @@ public class EventSourcingUtil {
         }
     }
 
-    public static <T> void transferChanges(T obj, final List<DomainEvent> changes) {
-        EventSourcingBus<DomainEvent> bus = new EventSourcingBus<DomainEvent>() {
+    public static <T, E extends Event> void transferChanges(T obj, final List<E> changes) {
+        EventSourcingBus<E> bus = new EventSourcingBus<E>() {
             @Override
-            public void store(DomainEvent event) {
+            public void store(E event) {
                 changes.add(event);
             }
             @Override
