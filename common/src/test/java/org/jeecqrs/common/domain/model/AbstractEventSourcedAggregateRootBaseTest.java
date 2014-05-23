@@ -1,5 +1,6 @@
 package org.jeecqrs.common.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
 import static org.testng.Assert.*;
@@ -13,7 +14,8 @@ public abstract class AbstractEventSourcedAggregateRootBaseTest<T extends Abstra
     protected abstract void assertExpectedForNewInstance(T obj);
 
     protected T replayed_instance(T template) {
-        List<DomainEvent> list = (List) EventSourcingUtil.retrieveChanges(template);
+        List<DomainEvent> list = new ArrayList<>();
+        EventSourcingUtil.transferChanges(template, list);
         long version = EventSourcingUtil.retrieveVersion(template);
         T instance = EventSourcingUtil.createByDefaultConstructor(arClass());
         EventSourcingUtil.loadEventStreamIntoObject(instance, version, list);
@@ -25,7 +27,8 @@ public abstract class AbstractEventSourcedAggregateRootBaseTest<T extends Abstra
         System.out.println("test_creation");
         T instance = fresh_instance();
         long version = EventSourcingUtil.retrieveVersion(instance);
-        List<DomainEvent> changes = EventSourcingUtil.retrieveChanges(instance);
+        List<DomainEvent> changes = new ArrayList<>();
+        EventSourcingUtil.transferChanges(instance, changes);
         assertEquals(version, 0);
         assertTrue(!changes.isEmpty());
         assertExpectedForNewInstance(instance);
@@ -36,8 +39,10 @@ public abstract class AbstractEventSourcedAggregateRootBaseTest<T extends Abstra
         System.out.println("test_creation_with_replay");
         T template = fresh_instance();
         T i = replayed_instance(template);
-        List<DomainEvent> changes1 = EventSourcingUtil.retrieveChanges(i);
-        List<DomainEvent> changes2 = EventSourcingUtil.retrieveChanges(template);
+        List<DomainEvent> changes1 = new ArrayList<>();
+        EventSourcingUtil.transferChanges(i, changes1);
+        List<DomainEvent> changes2 = new ArrayList<>();
+        EventSourcingUtil.transferChanges(template, changes2);
         assertEquals(changes1, changes2);
         assertExpectedForNewInstance(i);
     }

@@ -1,5 +1,6 @@
 package org.jeecqrs.common.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.jeecqrs.common.AbstractId;
 import org.jeecqrs.common.event.sourcing.EventSourcingUtil;
@@ -46,7 +47,9 @@ public class AbstractEventSourcedAggregateRootTest
     }
 
     protected List<DomainEvent> changesIn(AESARImpl instance) {
-        return (List) EventSourcingUtil.retrieveChanges(instance);
+        List<DomainEvent> changes = new ArrayList<>();
+        EventSourcingUtil.transferChanges(instance, changes);
+        return changes;
     }
 
     public static class AESARImpl extends AbstractEventSourcedAggregateRoot {

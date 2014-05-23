@@ -92,8 +92,7 @@ public class EventSourcingUtil {
         }
     }
 
-    public static <T> List<DomainEvent> retrieveChanges(T obj) {
-        final List<DomainEvent> changes = new ArrayList<>();
+    public static <T> void transferChanges(T obj, final List<DomainEvent> changes) {
         EventSourcingBus<DomainEvent> bus = new EventSourcingBus<DomainEvent>() {
             @Override
             public void store(DomainEvent event) {
@@ -105,7 +104,6 @@ public class EventSourcingUtil {
             }
         };
         invokeStoreMethod(obj, bus);;
-        return changes;
     }
 
     public static <T> void invokeStoreMethod(T obj, EventSourcingBus<? extends Event> bus) {
