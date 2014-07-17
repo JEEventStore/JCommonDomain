@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jeecqrs</groupId>
@@ -12,17 +14,13 @@
 
     <modules>
         <module>common</module>
+        <module>multitenancy</module>
         <module>persistence-jeeventstore</module>
+        <module>persistence-jeeventstore-multitenancy</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <version.compiler.plugin>2.3.1</version.compiler.plugin>
-
-        <!-- Tests -->
-        <version.testng>6.8</version.testng>
     </properties>
 
     <dependencies>
@@ -30,7 +28,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${version.testng}</version>
+            <version>6.8.8</version>
             <scope>test</scope>
         </dependency>
 
@@ -44,6 +42,24 @@
                 <artifactId>jcommondomain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            
+            <dependency>
+                <groupId>org.jeecqrs</groupId>
+                <artifactId>jcommondomain-multitenancy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jeecqrs</groupId>
+                <artifactId>jcommondomain-persistence-jeeventstore</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jeecqrs</groupId>
+                <artifactId>jcommondomain-persistence-jeeventstore-multitenancy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -54,10 +70,10 @@
 
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${version.compiler.plugin}</version>
+                    <version>3.1</version>
                     <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
+                        <source>1.7</source>
+                        <target>1.7</target>
                     </configuration>
                 </plugin>
 

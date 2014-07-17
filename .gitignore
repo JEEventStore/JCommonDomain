@@ -9,3 +9,5 @@ nbactions.xml
 /common/target/
 /persistence-jeeventstore/target/
 .idea/
+/multitenancy/target/
+/persistence-jeeventstore-multitenancy/target/
