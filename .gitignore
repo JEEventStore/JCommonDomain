@@ -3,7 +3,9 @@
 *.jar
 *.war
 *.ear
+*.iml
 nbactions.xml
 /target/
 /common/target/
 /persistence-jeeventstore/target/
+.idea/
