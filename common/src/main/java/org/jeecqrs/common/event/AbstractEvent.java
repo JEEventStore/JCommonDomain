@@ -48,7 +48,7 @@ public abstract class AbstractEvent<T> extends AbstractIdentifiable<T, Identity>
 
     public AbstractEvent(DefaultEventId id, Date occurredOn) {
         this.id = id;
-        this.occurredOn = occurredOn;
+        this.occurredOn = new Date(occurredOn.getTime());
     }
 
     @Override
@@ -58,7 +58,7 @@ public abstract class AbstractEvent<T> extends AbstractIdentifiable<T, Identity>
 
     @Override
     public Date occurredOn() {
-        return this.occurredOn;
+        return new Date(this.occurredOn.getTime());
     }
     
 }
