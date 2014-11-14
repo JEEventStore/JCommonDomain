@@ -30,6 +30,7 @@ import org.jeeventstore.ConcurrencyException;
 import org.jeeventstore.DuplicateCommitException;
 import org.jeeventstore.EventStore;
 import org.jeeventstore.ReadableEventStream;
+import org.jeeventstore.StreamNotFoundException;
 import org.jeeventstore.WritableEventStream;
 import org.jeeventstore.util.IteratorUtils;
 
@@ -62,9 +63,13 @@ public abstract class AbstractJEEventStoreRepository<T, ID, CID>
 
     @Override
     protected void loadFromStream(T obj, String streamId) {
-        ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
-        List<Event> events = (List) IteratorUtils.toList(stream.events());
-        EventSourcingUtil.loadEventStreamIntoObject(obj, stream.version(), events);
+        try {
+            ReadableEventStream stream = eventStore().openStreamForReading(bucketId(), streamId);
+            List<Event> events = (List) IteratorUtils.toList(stream.events());
+            EventSourcingUtil.loadEventStreamIntoObject(obj, stream.version(), events);
+        } catch (StreamNotFoundException e) {
+            throw new IllegalStateException("Trying to load from nonexisting stream: " + streamId, e);
+        }
     }
 
     @Override
