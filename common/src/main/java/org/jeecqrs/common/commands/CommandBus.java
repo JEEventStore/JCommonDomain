@@ -27,6 +27,6 @@ package org.jeecqrs.common.commands;
  */
 public interface CommandBus {
 
-    void send(Command command);
+    <C extends Command<C>> void send(C command);
     
 }

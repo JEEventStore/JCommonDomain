@@ -21,7 +21,7 @@
 
 package org.jeecqrs.common.sagas;
 
-import org.jeecqrs.common.commands.*;
+import org.jeecqrs.common.commands.Command;
 
 /**
  * Provides the ability to send commands that are dispatched to corresponding
@@ -33,16 +33,18 @@ public interface SagaCommandBus {
      * Sends a command, which is guaranteed to be delivered if the
      * surrounding transaction commits successfully.
      * 
+     * @param <C> the type of the command to send
      * @param command   the command to send
      */
-    void send(Command command);
+    public <C extends Command<?>> void send(C command);
 
     /**
      * Sends a command and forgets about it.  If the command handler fails
      * to handle the command, the command gets lost.
      * 
+     * @param <C> the type of the command to send
      * @param command   the command to send
      */
-    void sendAndForget(Command command);
+    public <C extends Command<?>> void sendAndForget(C command);
     
 }
