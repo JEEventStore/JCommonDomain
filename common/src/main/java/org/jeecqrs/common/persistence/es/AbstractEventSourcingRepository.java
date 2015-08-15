@@ -65,13 +65,13 @@ public abstract class AbstractEventSourcingRepository<T, ID, CID> {
 	return obj;
     }
 
-    protected T ofIdentity(ID id) {
+    public T ofIdentity(ID id) {
         if (objectType == null)
             throw new IllegalStateException("Cannot call #ofIdentity() without objectType");
         return this.ofIdentity(objectType, id);
     }
 
-    protected void add(T obj, CID commitId) {
+    public void add(T obj, CID commitId) {
         Validate.notNull(obj, "object must not be null");
         String streamId = streamNameGenerator().streamNameFor(obj);
         EventSourcingBus<Event> bus = busForAdd(streamId);
@@ -79,7 +79,7 @@ public abstract class AbstractEventSourcingRepository<T, ID, CID> {
         bus.commit(commitId.toString());
     }
 
-    protected void save(T obj, CID commitId) {
+    public void save(T obj, CID commitId) {
         Validate.notNull(obj, "object must not be null");
         String streamId = streamNameGenerator().streamNameFor(obj);
         long version = retrieveVersion(obj);
