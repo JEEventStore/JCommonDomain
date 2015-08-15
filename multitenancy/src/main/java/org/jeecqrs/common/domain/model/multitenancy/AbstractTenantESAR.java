@@ -24,7 +24,8 @@ package org.jeecqrs.common.domain.model.multitenancy;
 import org.jeecqrs.common.Identity;
 
 public abstract class AbstractTenantESAR<T, OID extends Identity, TID extends Identity>
-        extends org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot<T, OID> {
+        extends org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot<T, OID> 
+        implements MultiTenancy<TID> {
 
     private TID tenantId;
 
@@ -33,6 +34,7 @@ public abstract class AbstractTenantESAR<T, OID extends Identity, TID extends Id
      *
      * @return the ID
      */
+    @Override
     public final TID tenantId() {
         return tenantId;
     }
