@@ -31,12 +31,12 @@ public abstract class AbstractMultiTenancyEventStoreRepository<
             TID extends Identity>
         extends AbstractJEEventStoreARRepository<T, MultiTenancyId<TID, OID>, org.jeecqrs.common.Identity> {
 
-    protected boolean exists(TID tenantId, OID id) {
+    public boolean exists(TID tenantId, OID id) {
         MultiTenancyId mtid = new MultiTenancyId(tenantId, id);
         return super.exists(objectType(), mtid);
     }
 
-    protected T ofIdentity(TID tenantId, OID id) {
+    public T ofIdentity(TID tenantId, OID id) {
         MultiTenancyId<TID, OID> mtid = new MultiTenancyId<>(tenantId, id);
         return super.ofIdentity(mtid);
     }
