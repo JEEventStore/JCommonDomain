@@ -11,3 +11,7 @@ nbactions.xml
 .idea/
 /multitenancy/target/
 /persistence-jeeventstore-multitenancy/target/
+
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+release.properties
