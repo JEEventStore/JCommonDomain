@@ -21,16 +21,17 @@
 
 package org.jeecqrs.common.sagas;
 
+import org.jeecqrs.common.Identifiable;
+import org.jeecqrs.common.commands.Command;
+import org.jeecqrs.common.event.Event;
+import org.jeecqrs.common.event.routing.EventRouter;
+import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
+import org.jeecqrs.common.util.Validate;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jeecqrs.common.Identifiable;
-import org.jeecqrs.common.commands.Command;
-import org.jeecqrs.common.event.Event;
-import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
-import org.jeecqrs.common.event.routing.EventRouter;
-import org.jeecqrs.common.util.Validate;
 
 /**
  * Base implementation for sagas.
@@ -127,7 +128,7 @@ public abstract class AbstractSaga implements Identifiable<String> {
     /**
      * Sets the commandBus to use for sending commands.
      * 
-     * @param commandBus 
+     * @param commandBus  the command bus
      */
     public void setCommandBus(SagaCommandBus commandBus) {
         this.commandBus = commandBus;

@@ -21,36 +21,37 @@
 
 package org.jeecqrs.common.domain.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.event.routing.EndpointNotFoundException;
-import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.routing.EventRouter;
+import org.jeecqrs.common.event.routing.convention.ConventionEventRouter;
 import org.jeecqrs.common.event.sourcing.EventSourcingBus;
 import org.jeecqrs.common.event.sourcing.Load;
 import org.jeecqrs.common.event.sourcing.Store;
 import org.jeecqrs.common.event.sourcing.Version;
 import org.jeecqrs.common.util.Validate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * AbstractEventSourcedAggregateRoot is the default implementation for 
  * EventSourcedAggregateRoot instances.
  * Note that subclasses MUST NOT change their state directly -- neither by direct
  * field access nor by calling setters.  Rather, each state changing operation
- * must create a corresponding {@link DomainEvent} and call {@link #apply(event)}.
+ * must create a corresponding {@code DomainEvent} and call {@code #apply(event)}.
  * The latter adds the domain event to the internal list of changes and
  * calls the corresponding event handler for the domain event.  Only
  * the event handler may change the internal state of the aggregate.
  * <p>
- * By default, the {@link ConventionEventRouter} strategy is used to find
- * event handlers for the {@link DomainEvent} with a default method name
+ * By default, the {@code ConventionEventRouter} strategy is used to find
+ * event handlers for the {@code DomainEvent} with a default method name
  * of {@code when}.
  * Subclasses may specify a different event handler lookup strategy.
  * <p>
  * Some implementation details: The repository loads a specific {@code version}
  * of the aggregate with the internal {@link #load} method from a given
- * (possibly empty) list of {@link DomainEvent}s.
+ * (possibly empty) list of {@code DomainEvent}s.
  * Subsequent changes to the aggregate are stored internally.  To persist
  * any changes, the event store repository calls the internal {@link #store}
  * method.
