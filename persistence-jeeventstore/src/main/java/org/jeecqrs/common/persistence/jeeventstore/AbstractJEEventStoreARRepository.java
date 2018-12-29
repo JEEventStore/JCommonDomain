@@ -21,11 +21,9 @@
 
 package org.jeecqrs.common.persistence.jeeventstore;
 
+import net.jodah.typetools.TypeResolver;
 import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
-import org.jeecqrs.common.persistence.es.CanonicalNameEventStreamNameGenerator;
-import org.jeecqrs.common.persistence.es.EventStreamNameGenerator;
-import org.jodah.typetools.TypeResolver;
 
 /**
  *
