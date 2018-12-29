@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jeecqrs</groupId>
         <artifactId>jcommondomain-parent</artifactId>
-        <version>1.2</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>jcommondomain-persistence-jeeventstore</artifactId>
@@ -24,12 +24,6 @@
         <dependency>
             <groupId>org.jeecqrs</groupId>
             <artifactId>jcommondomain-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>net.jodah</groupId>
-            <artifactId>typetools</artifactId>
-            <version>0.6.0</version>
         </dependency>
 
     </dependencies>

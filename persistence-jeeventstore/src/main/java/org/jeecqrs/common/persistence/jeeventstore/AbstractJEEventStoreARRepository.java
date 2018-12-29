@@ -21,9 +21,9 @@
 
 package org.jeecqrs.common.persistence.jeeventstore;
 
-import net.jodah.typetools.TypeResolver;
 import org.jeecqrs.common.Identity;
 import org.jeecqrs.common.domain.model.AbstractEventSourcedAggregateRoot;
+import org.jeecqrs.common.util.ReflectionUtils;
 
 /**
  *
@@ -38,13 +38,7 @@ AbstractJEEventStoreARRepository<
     extends AbstractJEEventStoreRepository<T, ID, CID> {
     
     public AbstractJEEventStoreARRepository() {
-        Class<?>[] typeArguments = TypeResolver
-                .resolveRawArguments(AbstractJEEventStoreARRepository.class, getClass());
-        Class<T> type = (Class) typeArguments[0];
-        if (TypeResolver.Unknown.class.equals(type))
-            throw new IllegalStateException("Object type parameter missing on " +
-                    AbstractJEEventStoreARRepository.class.getSimpleName() + " for class " + getClass());
+        Class<T> type = (Class) ReflectionUtils.findSuperClassParameterType(this, AbstractJEEventStoreARRepository.class, 0);
         this.setObjectType(type);
     }
-
 }

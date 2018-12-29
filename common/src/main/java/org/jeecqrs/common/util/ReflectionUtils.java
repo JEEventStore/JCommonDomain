@@ -7,10 +7,10 @@
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -21,6 +21,8 @@
 
 package org.jeecqrs.common.util;
 
+import net.jodah.typetools.TypeResolver;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -29,18 +31,18 @@ import java.util.Arrays;
  * Provides utility methods for reflection.
  */
 public class ReflectionUtils {
-    
+
     /**
      * Finds the unique method with the given annotation on the given class or
      * any of its super classes.
      * Also sets the method accessible.
      * Throws a runtime exception if no method with this annotation can be
      * found or if the annotated method has a different signature.
-     * 
-     * @param clazz  the class to search
-     * @param annotation  the annotation to find
-     * @param params  the required method parameters
-     * @return   the method
+     *
+     * @param clazz      the class to search
+     * @param annotation the annotation to find
+     * @param params     the required method parameters
+     * @return the method
      */
     public static Method findUniqueMethod(
             Class<?> clazz,
@@ -61,10 +63,10 @@ public class ReflectionUtils {
      * Finds the unique method with the given annotation or throws
      * a {@link RuntimeException} if no such method can be found on the
      * class or any of its super classes.
-     * 
-     * @param clazz  the class to search
-     * @param annotation  the annotation to find
-     * @return   the method
+     *
+     * @param clazz      the class to search
+     * @param annotation the annotation to find
+     * @return the method
      */
     public static Method findAnnotatedMethodOrFail(Class<?> clazz, Class<? extends Annotation> annotation) {
         Method m = findAnnotatedMethod(clazz, annotation);
@@ -80,10 +82,10 @@ public class ReflectionUtils {
     /**
      * Finds the first method with the given annotation on the given
      * class or any of its super classes.
-     * 
-     * @param clazz  the class to search
-     * @param annotation  the annotation to find
-     * @return   the method or null if no such method exists
+     *
+     * @param clazz      the class to search
+     * @param annotation the annotation to find
+     * @return the method or null if no such method exists
      */
     public static Method findAnnotatedMethod(Class<?> clazz, Class<? extends Annotation> annotation) {
         Class<?> current = clazz;
@@ -95,6 +97,26 @@ public class ReflectionUtils {
             current = current.getSuperclass();
         }
         return null;
+    }
+
+    /**
+     * Finds the actual type parameter given to a generic class.
+     *
+     * @param instance        actual class instance
+     * @param classOfInterest super class with type arguments
+     * @param index           index to retrieve
+     * @return the super class generic type argument class at the given index
+     */
+    public static Class<?> findSuperClassParameterType(Object instance, Class<?> classOfInterest, int index) {
+
+        Class clz = TypeResolver.resolveRawArguments(classOfInterest, instance.getClass())[index];
+
+        if (TypeResolver.Unknown.class.equals(clz))
+        {
+            throw new IllegalArgumentException("Cannot resolve type argument " + index + " of " + classOfInterest + " for " + instance.getClass());
+        }
+
+        return clz;
     }
 
 }

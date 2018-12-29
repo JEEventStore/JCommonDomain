@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jeecqrs</groupId>
         <artifactId>jcommondomain-parent</artifactId>
-        <version>1.2</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>jcommondomain-core</artifactId>
@@ -15,6 +15,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>typetools</artifactId>
+            <version>0.6.0</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
