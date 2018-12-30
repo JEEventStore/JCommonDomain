@@ -6,11 +6,13 @@
 *.iml
 nbactions.xml
 /target/
+/bom/target/
 /common/target/
 /persistence-jeeventstore/target/
 .idea/
 /multitenancy/target/
 /persistence-jeeventstore-multitenancy/target/
+/persistence-jeeventstore-bom/target/
 
 pom.xml.versionsBackup
 pom.xml.releaseBackup

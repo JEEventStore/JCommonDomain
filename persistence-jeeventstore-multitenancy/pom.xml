@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jeecqrs</groupId>
         <artifactId>jcommondomain-parent</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </parent>
 
     <artifactId>jcommondomain-persistence-jeeventstore-multitenancy</artifactId>
@@ -13,16 +13,30 @@
 
     <name>Common Domain for Java: JEEventStore Persistence w/ Multitenancy</name>
 
-    <dependencies> 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jeecqrs</groupId>
+                <artifactId>jcommondomain-persistence-jeeventstore-bom</artifactId>
+                <version>${project.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
 
         <dependency>
             <groupId>org.jeecqrs</groupId>
             <artifactId>jcommondomain-multitenancy</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jeecqrs</groupId>
             <artifactId>jcommondomain-persistence-jeeventstore</artifactId>
+            <version>${project.version}</version>
         </dependency>
     
     </dependencies>

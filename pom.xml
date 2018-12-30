@@ -5,12 +5,11 @@
 
     <groupId>org.jeecqrs</groupId>
     <artifactId>jcommondomain-parent</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 
     <packaging>pom</packaging>
 
     <name>CommonDomain for Java: Parent module</name>
-
 
     <description>Encapsulates various infrastructure concerns for domains.</description>
     <url>https://github.com/JEEventStore/JCommonDomain</url>
@@ -36,8 +35,10 @@
     </scm>
 
     <modules>
+        <module>bom</module>
         <module>common</module>
         <module>multitenancy</module>
+        <module>persistence-jeeventstore-bom</module>
         <module>persistence-jeeventstore</module>
         <module>persistence-jeeventstore-multitenancy</module>
     </modules>
@@ -56,36 +57,6 @@
         </dependency>
 
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-
-            <dependency>
-                <groupId>org.jeecqrs</groupId>
-                <artifactId>jcommondomain-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jeecqrs</groupId>
-                <artifactId>jcommondomain-multitenancy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jeecqrs</groupId>
-                <artifactId>jcommondomain-persistence-jeeventstore</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.jeecqrs</groupId>
-                <artifactId>jcommondomain-persistence-jeeventstore-multitenancy</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <pluginManagement>
